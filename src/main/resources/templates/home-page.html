@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Startup Rush - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0d6efd;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .description {
+            text-align: justify;
+            margin-bottom: 30px;
+            color: #555;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Bem-vindo ao Startup Rush</h1>
+
+    <div class="description">
+        <p>O Startup Rush é um evento emocionante onde startups competem em batalhas de pitch para demonstrar
+            seu potencial e conquistar investidores. Cada startup terá a oportunidade de apresentar seu modelo de
+            negócio, enfrentar desafios e acumular pontos para chegar à grande final.</p>
+
+        <p>Organize as batalhas, gerencie os eventos durante cada pitch, e descubra qual startup tem o que é
+            preciso para se destacar no competitivo mundo dos negócios!</p>
+    </div>
+
+    <form th:action="@{/startups}" method="post">
+        <div class="form-group">
+            <label for="numStartups" class="form-label">Selecione o número de startups para começar uma nova batalha:</label>
+            <select class="form-select form-select-lg" id="numStartups" name="numStartups" required>
+                <option value="">Selecione</option>
+                <option value="4">4 Startups</option>
+                <option value="6">6 Startups</option>
+                <option value="8">8 Startups</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Confirmar</button>
+        </div>
+    </form>
+</div>
+
+<div class="footer">
+    Produzido por [Seu Nome] - Startup Rush &copy; 2025
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
