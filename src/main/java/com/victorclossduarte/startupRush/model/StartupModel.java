@@ -30,7 +30,7 @@ public class StartupModel {
     private int points = 70;
 
     // atributos de pontuacao
-    private int goodPitc = 0;
+    private int goodPitch = 0;
     private int bugProd = 0;
     private int userTract = 0;
     private int irritInv = 0;
