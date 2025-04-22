@@ -194,13 +194,8 @@ public class BattleService {
 
     @Transactional
     public BattleModel finalizeBattle(int battleId) {
-        // Recuperando a batalha pelo ID Long, não int
-        Optional<BattleModel> battleOpt = battleRepository.findById(battleId);
-        if (!battleOpt.isPresent()) {
-            throw new RuntimeException("Batalha não encontrada");
-        }
-
-        BattleModel battle = battleOpt.get();
+        // Recuperando a batalha pelo ID
+        BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
             throw new RuntimeException("Esta batalha já foi finalizada");
@@ -246,7 +241,7 @@ public class BattleService {
         startupRepository.save(startup1);
         startupRepository.save(startup2);
 
-        // Salvando a batalha após ter atribuído todos os valores
+        // Salvar e retornar a batalha atualizada
         return battleRepository.save(battle);
     }
 

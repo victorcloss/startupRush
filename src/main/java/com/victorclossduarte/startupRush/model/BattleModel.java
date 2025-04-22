@@ -30,10 +30,11 @@ public class BattleModel {
 
     private Boolean sharkFight = false;
 
-    @OneToMany(mappedBy = "battle", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "battle", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StartupBattleModel> participants = new ArrayList<>();
 
     @OneToOne
+    @JoinColumn(name = "winner_id")
     private StartupModel winner;
 
     // métodos de pontuação

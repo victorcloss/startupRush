@@ -111,17 +111,19 @@ public class TournamentController {
                         "Avançado para a rodada " + tournament.getCurrentRound() + " com sucesso!");
             }
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao avançar rodada: " + e.getMessage());
+            e.printStackTrace(); // Log completo do erro para debugging
         }
         return "redirect:/tournaments/" + id;
     }
 
     @GetMapping("/{id}/current-round")
-    public String getCurrentRound(@PathVariable int id, Model model) {
+    public String getCurrentRound(@PathVariable int id, RedirectAttributes redirectAttributes) {
         try {
             RoundModel currentRound = tournamentService.getCurrentRound(id);
             return "redirect:/rounds/" + currentRound.getRoundId();
         } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao buscar rodada atual: " + e.getMessage());
             return "redirect:/tournaments/" + id;
         }
     }

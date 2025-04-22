@@ -186,13 +186,23 @@ public class TournamentService {
         }
 
         int currentRoundNumber = tournament.getCurrentRound();
-        RoundModel currentRound = roundRepository.findByTournamentAndNumero(tournament, currentRoundNumber)
-                .get(0);
+        List<RoundModel> currentRoundList = roundRepository.findByTournamentAndNumero(tournament, currentRoundNumber);
+
+        if (currentRoundList.isEmpty()) {
+            throw new RuntimeException("Rodada atual não encontrada");
+        }
+
+        RoundModel currentRound = currentRoundList.get(0);
 
         // Verifica se todas as batalhas da rodada atual foram finalizadas
         for (BattleModel battle : currentRound.getBattles()) {
             if (battle.getStatus() == BattleStatus.PENDENTE) {
                 throw new RuntimeException("Ainda existem batalhas pendentes na rodada atual");
+            }
+
+            // Garantir que cada batalha tem um vencedor definido
+            if (battle.getWinner() == null) {
+                throw new RuntimeException("Batalha #" + battle.getId() + " não tem um vencedor definido");
             }
         }
 
@@ -204,7 +214,15 @@ public class TournamentService {
         if (currentRound.getBattles().size() == 1) {
             // Finaliza o torneio
             tournament.setStatus(TournamentStatus.FINALIZADO);
-            tournament.setChampion(currentRound.getBattles().get(0).getWinner());
+
+            // Define o campeão do torneio como o vencedor da última batalha
+            BattleModel finalBattle = currentRound.getBattles().get(0);
+            if (finalBattle.getWinner() != null) {
+                tournament.setChampion(finalBattle.getWinner());
+            } else {
+                throw new RuntimeException("A batalha final não tem um vencedor definido");
+            }
+
             return tournamentRepository.save(tournament);
         }
 
