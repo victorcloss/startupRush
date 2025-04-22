@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Torneios</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Lista de Torneios</h1>
+    <a href="/tournaments/new" class="btn btn-primary">Novo Torneio</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Rodada Atual</th>
+        <th>Startups</th>
+        <th>Campeão</th>
+        <th>Ações</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="tournament : ${tournaments}">
+        <td th:text="${tournament.tournamentId}"></td>
+        <td>
+          <span th:if="${tournament.status.toString() == 'NAO_INICIADO'}" class="badge bg-secondary">Não Iniciado</span>
+          <span th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
+          <span th:if="${tournament.status.toString() == 'FINALIZADO'}" class="badge bg-success">Finalizado</span>
+        </td>
+        <td th:text="${tournament.currentRound}"></td>
+        <td th:text="${tournament.startups.size()}"></td>
+        <td th:text="${tournament.champion != null ? tournament.champion.name : '-'}"></td>
+        <td>
+          <div class="btn-group" role="group">
+            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-info btn-sm">Detalhes</a>
+            <a th:if="${tournament.status.toString() == 'NAO_INICIADO'}"
+               th:href="@{/tournaments/{id}/startups(id=${tournament.tournamentId})}"
+               class="btn btn-warning btn-sm">Gerenciar Startups</a>
+          </div>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-info" th:if="${#lists.isEmpty(tournaments)}">
+    <p>Nenhum torneio cadastrado. <a href="/tournaments/new">Cadastre um novo torneio!</a></p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title th:text="${startup.id == 0 ? 'Nova Startup' : 'Editar Startup'}"></title>
+  <style>
+    .form-control {
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #d1d3e2;
+    }
+    .form-control:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+    }
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #5a5c69;
+    }
+    .card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    .card-header {
+      border-top-left-radius: 15px !important;
+      border-top-right-radius: 15px !important;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="card">
+    <div class="card-header bg-primary text-white py-3">
+      <h2 class="mb-0 d-flex align-items-center">
+        <i class="fas fa-rocket me-2"></i>
+        <span th:text="${startup.id == 0 ? 'Nova Startup' : 'Editar Startup'}"></span>
+      </h2>
+    </div>
+    <div class="card-body p-5">
+      <form th:action="${startup.id == 0 ? '/startups' : '/startups/update/' + startup.id}" method="post" th:object="${startup}" class="needs-validation" novalidate>
+        <div class="row mb-4">
+          <div class="col-md-6 mb-4">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="name" name="name" th:value="${startup.name}" required>
+              <label for="name">Nome da Startup</label>
+              <div class="invalid-feedback">
+                Por favor, informe o nome da startup.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 mb-4">
+            <div class="form-floating">
+              <input type="number" class="form-control" id="foundationYear" name="foundationYear"
+                     th:value="${startup.foundationYear}" min="1900" max="2025" required>
+              <label for="foundationYear">Ano de Fundação</label>
+              <div class="invalid-feedback">
+                Por favor, informe um ano de fundação válido (entre 1900 e 2025).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="slogan" name="slogan" th:value="${startup.slogan}" required>
+            <label for="slogan">Slogan</label>
+            <div class="invalid-feedback">
+              Por favor, informe o slogan da startup.
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" th:if="${startup.id != 0}" name="id" th:value="${startup.id}">
+
+        <div class="d-flex justify-content-between mt-4">
+          <a th:href="@{/startups}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Cancelar
+          </a>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save me-2"></i>Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Validação do formulário
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+  </script>
+</div>
+</body>
+</html>

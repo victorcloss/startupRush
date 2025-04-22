@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Novo Torneio</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Novo Torneio</h2>
+    </div>
+    <div class="card-body">
+      <form th:action="@{/tournaments}" method="post">
+        <p class="mb-4">Ao criar um novo torneio, você será redirecionado para selecionar as startups participantes.</p>
+
+        <div class="d-flex justify-content-between">
+          <a th:href="@{/tournaments}" class="btn btn-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-success">Criar Torneio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

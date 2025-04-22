@@ -1,44 +1,254 @@
 package com.victorclossduarte.startupRush.service;
 
-
+import com.victorclossduarte.startupRush.enums.BattleStatus;
+import com.victorclossduarte.startupRush.model.BattleModel;
+import com.victorclossduarte.startupRush.model.RoundModel;
+import com.victorclossduarte.startupRush.model.StartupBattleModel;
 import com.victorclossduarte.startupRush.model.StartupModel;
 import com.victorclossduarte.startupRush.repository.BattleRepository;
+import com.victorclossduarte.startupRush.repository.StartupBattleRepository;
+import com.victorclossduarte.startupRush.repository.StartupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+
 @Service
 public class BattleService {
+    @Autowired
+    private BattleRepository battleRepository;
 
     @Autowired
-    BattleRepository repository;
+    private StartupRepository startupRepository;
 
+    @Autowired
+    private StartupBattleRepository startupBattleRepository;
 
-    // metodos de pontuacao
-
-    public void pitchConv(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() + 6);
+    public List<BattleModel> getAllBattles() {
+        return (List<BattleModel>) battleRepository.findAll();
     }
 
-    public void prodBugs(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() - 4);
+    public BattleModel getBattleById(long id) {
+        Optional<BattleModel> battle = battleRepository.findById((int)id);
+        if (!battle.isPresent()) {
+            throw new RuntimeException("Batalha não encontrada");
+        }
+        return battle.get();
     }
 
-    public void userTraction(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() + 3);
+    public List<BattleModel> getBattlesByRound(RoundModel round) {
+        return round.getBattles();
     }
 
-    public void irritInvest(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() - 6);
+    public StartupBattleModel getParticipation(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
+        StartupModel startup = startupRepository.findById(startupId)
+                .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
+
+        Optional<StartupBattleModel> participation = startupBattleRepository.findByStartupAndBattle(startup, battle);
+        if (!participation.isPresent()) {
+            throw new RuntimeException("Startup não está participando desta batalha");
+        }
+
+        return participation.get();
     }
 
-    public void fakeNewsP(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() - 8);
+    // Métodos para aplicar eventos nas batalhas
+
+    public BattleModel applyPitchConvincente(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
+
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Não é possível aplicar eventos em uma batalha finalizada");
+        }
+
+        StartupBattleModel participation = getParticipation(battleId, startupId);
+
+        if (participation.getPitchConvincente()) {
+            throw new RuntimeException("Pitch convincente já foi aplicado para esta startup");
+        }
+
+        StartupModel startup = participation.getStartup();
+        startup.setPoints(startup.getPoints() + 6);
+        startup.setGoodPitch(startup.getGoodPitch() + 1);
+
+        participation.setPitchConvincente(true);
+        participation.setPontuacaoFinal(startup.getPoints());
+
+        startupRepository.save(startup);
+        startupBattleRepository.save(participation);
+
+        return battleRepository.save(battle);
     }
 
-    public void winner(StartupModel startupX) {
-        startupX.setPoints(startupX.getPoints() + 30);
+    public BattleModel applyProdutoComBugs(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
+
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Não é possível aplicar eventos em uma batalha finalizada");
+        }
+
+        StartupBattleModel participation = getParticipation(battleId, startupId);
+
+        if (participation.getProdutoComBugs()) {
+            throw new RuntimeException("Produto com bugs já foi aplicado para esta startup");
+        }
+
+        StartupModel startup = participation.getStartup();
+        startup.setPoints(startup.getPoints() - 4);
+        startup.setBugProd(startup.getBugProd() + 1);
+
+        participation.setProdutoComBugs(true);
+        participation.setPontuacaoFinal(startup.getPoints());
+
+        startupRepository.save(startup);
+        startupBattleRepository.save(participation);
+
+        return battleRepository.save(battle);
     }
 
+    public BattleModel applyBoaTracaoUsuarios(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
 
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Não é possível aplicar eventos em uma batalha finalizada");
+        }
 
+        StartupBattleModel participation = getParticipation(battleId, startupId);
+
+        if (participation.getBoaTracaoUsuarios()) {
+            throw new RuntimeException("Boa tração de usuários já foi aplicada para esta startup");
+        }
+
+        StartupModel startup = participation.getStartup();
+        startup.setPoints(startup.getPoints() + 3);
+        startup.setUserTract(startup.getUserTract() + 1);
+
+        participation.setBoaTracaoUsuarios(true);
+        participation.setPontuacaoFinal(startup.getPoints());
+
+        startupRepository.save(startup);
+        startupBattleRepository.save(participation);
+
+        return battleRepository.save(battle);
+    }
+
+    public BattleModel applyInvestidorIrritado(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
+
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Não é possível aplicar eventos em uma batalha finalizada");
+        }
+
+        StartupBattleModel participation = getParticipation(battleId, startupId);
+
+        if (participation.getInvestidorIrritado()) {
+            throw new RuntimeException("Investidor irritado já foi aplicado para esta startup");
+        }
+
+        StartupModel startup = participation.getStartup();
+        startup.setPoints(startup.getPoints() - 6);
+        startup.setIrritInv(startup.getIrritInv() + 1);
+
+        participation.setInvestidorIrritado(true);
+        participation.setPontuacaoFinal(startup.getPoints());
+
+        startupRepository.save(startup);
+        startupBattleRepository.save(participation);
+
+        return battleRepository.save(battle);
+    }
+
+    public BattleModel applyFakeNewsNoPitch(long battleId, int startupId) {
+        BattleModel battle = getBattleById(battleId);
+
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Não é possível aplicar eventos em uma batalha finalizada");
+        }
+
+        StartupBattleModel participation = getParticipation(battleId, startupId);
+
+        if (participation.getFakeNewsNoPitch()) {
+            throw new RuntimeException("Fake news no pitch já foi aplicado para esta startup");
+        }
+
+        StartupModel startup = participation.getStartup();
+        startup.setPoints(startup.getPoints() - 8);
+        startup.setFakeNewsP(startup.getFakeNewsP() + 1);
+
+        participation.setFakeNewsNoPitch(true);
+        participation.setPontuacaoFinal(startup.getPoints());
+
+        startupRepository.save(startup);
+        startupBattleRepository.save(participation);
+
+        return battleRepository.save(battle);
+    }
+
+    public BattleModel finalizeBattle(long battleId) {
+        BattleModel battle = getBattleById(battleId);
+
+        if (battle.getStatus() == BattleStatus.FINALIZADA) {
+            throw new RuntimeException("Esta batalha já foi finalizada");
+        }
+
+        if (battle.getParticipants().size() != 2) {
+            throw new RuntimeException("Uma batalha deve ter exatamente 2 startups");
+        }
+
+        StartupModel startup1 = battle.getParticipants().get(0).getStartup();
+        StartupModel startup2 = battle.getParticipants().get(1).getStartup();
+
+        StartupModel winner;
+
+        // Verifica se há vencedor claro ou se precisa de SharkFight
+        if (startup1.getPoints() > startup2.getPoints()) {
+            winner = startup1;
+            battle.setSharkFight(false);
+        } else if (startup2.getPoints() > startup1.getPoints()) {
+            winner = startup2;
+            battle.setSharkFight(false);
+        } else {
+            // Empate - SharkFight
+            battle.setSharkFight(true);
+            winner = executeSharkFight(battle, startup1, startup2);
+        }
+
+        // Atribui pontos de vitória
+        winner.setPoints(winner.getPoints() + 30);
+        winner.setWins(winner.getWins() + 1);
+
+        // Atualiza a batalha
+        battle.setWinner(winner);
+        battle.setStatus(BattleStatus.FINALIZADA);
+
+        // Salva as alterações
+        startupRepository.save(startup1);
+        startupRepository.save(startup2);
+        return battleRepository.save(battle);
+    }
+
+    private StartupModel executeSharkFight(BattleModel battle, StartupModel startup1, StartupModel startup2) {
+        Random random = new Random();
+        boolean isStartup1Winner = random.nextBoolean();
+
+        StartupModel winner = isStartup1Winner ? startup1 : startup2;
+        StartupBattleModel winnerParticipation = battle.getParticipants().stream()
+                .filter(p -> p.getStartup().getId() == winner.getId())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Erro ao encontrar participação da startup vencedora"));
+
+        // Adiciona 2 pontos ao vencedor do SharkFight
+        winner.setPoints(winner.getPoints() + 2);
+        winner.setSharkFights(winner.getSharkFights() + 1);
+
+        winnerParticipation.setGanhouSharkFight(true);
+        winnerParticipation.setPontuacaoFinal(winner.getPoints());
+
+        startupBattleRepository.save(winnerParticipation);
+
+        return winner;
+    }
 }

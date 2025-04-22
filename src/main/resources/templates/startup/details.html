@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Detalhes da Startup</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 th:text="${startup.name}"></h1>
+    <div>
+      <a th:href="@{/startups}" class="btn btn-secondary">Voltar</a>
+      <a th:href="@{/startups/edit/{id}(id=${startup.id})}" class="btn btn-warning">Editar</a>
+      <a th:href="@{/startups/reset/{id}(id=${startup.id})}" class="btn btn-danger"
+         onclick="return confirm('Tem certeza que deseja resetar a pontuação desta startup?')">Resetar Pontuação</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Informações Básicas</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>ID:</strong> <span th:text="${startup.id}"></span></p>
+          <p><strong>Nome:</strong> <span th:text="${startup.name}"></span></p>
+          <p><strong>Slogan:</strong> <span th:text="${startup.slogan}"></span></p>
+          <p><strong>Ano de Fundação:</strong> <span th:text="${startup.foundationYear}"></span></p>
+          <p><strong>Pontuação Atual:</strong> <span th:text="${startup.points}"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">Estatísticas</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Vitórias:</strong> <span th:text="${startup.wins}"></span></p>
+          <p><strong>Pitches Convincentes:</strong> <span th:text="${startup.goodPitch}"></span></p>
+          <p><strong>Produtos com Bugs:</strong> <span th:text="${startup.bugProd}"></span></p>
+          <p><strong>Boa Tração de Usuários:</strong> <span th:text="${startup.userTract}"></span></p>
+          <p><strong>Investidores Irritados:</strong> <span th:text="${startup.irritInv}"></span></p>
+          <p><strong>Fake News no Pitch:</strong> <span th:text="${startup.fakeNewsP}"></span></p>
+          <p><strong>Shark Fights Vencidos:</strong> <span th:text="${startup.sharkFights}"></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4" th:if="${not #sets.isEmpty(startup.tournaments)}">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">Torneios Participantes</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Rodada Atual</th>
+            <th>Ações</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="tournament : ${startup.tournaments}">
+            <td th:text="${tournament.tournamentId}"></td>
+            <td th:text="${tournament.status}"></td>
+            <td th:text="${tournament.currentRound}"></td>
+            <td>
+              <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-info btn-sm">Detalhes</a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

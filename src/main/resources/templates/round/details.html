@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Detalhes da Rodada</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Rodada <span th:text="${round.numero}"></span></h1>
+    <div>
+      <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}" class="btn btn-secondary">Voltar ao Torneio</a>
+    </div>
+  </div>
+
+  <div class="alert alert-info mb-4">
+    <p>
+      <strong>Status da Rodada:</strong>
+      <span th:if="${round.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
+      <span th:if="${round.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
+    </p>
+    <p>
+      <strong>Torneio:</strong> <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}"
+                                   th:text="'#' + ${round.tournament.tournamentId}"></a>
+    </p>
+    <p>
+      <strong>Número de Batalhas:</strong> <span th:text="${round.battles.size()}"></span>
+    </p>
+  </div>
+
+  <h2 class="mb-3">Batalhas</h2>
+
+  <div class="row">
+    <div class="col-md-6 mb-4" th:each="battle : ${round.battles}">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center"
+             th:classappend="${battle.status.toString() == 'PENDENTE' ? 'bg-warning' : 'bg-success'}">
+          <h5 class="mb-0 text-white">Batalha #<span th:text="${battle.id}"></span></h5>
+          <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-light text-dark">Pendente</span>
+          <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-light text-dark">Finalizada</span>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-6 text-center" th:each="participant : ${battle.participants}">
+              <h6 th:text="${participant.startup.name}"></h6>
+              <div class="badge bg-primary fs-5" th:text="${participant.pontuacaoFinal}"></div>
+              <div th:if="${battle.winner != null && battle.winner.id == participant.startup.id}"
+                   class="badge bg-success mt-2">Vencedor</div>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <a th:href="@{/battles/{id}(id=${battle.id})}" class="btn btn-primary">Gerenciar Batalha</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info" th:if="${#lists.isEmpty(round.battles)}">
+    <p>Não há batalhas nesta rodada.</p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,8 +1,9 @@
 package com.victorclossduarte.startupRush.service;
 
-
 import com.victorclossduarte.startupRush.model.StartupModel;
+import com.victorclossduarte.startupRush.model.TournamentModel;
 import com.victorclossduarte.startupRush.repository.StartupRepository;
+import com.victorclossduarte.startupRush.repository.TournamentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,49 +13,86 @@ import java.util.Optional;
 @Service
 public class StartupService {
     @Autowired
-    StartupRepository repo;
+    StartupRepository repository;
+
+    @Autowired
+    TournamentRepository tournamentRepository;
 
     public List<StartupModel> getAllStartups() {
-        return (List<StartupModel>) repo.findAll();
+        return (List<StartupModel>) repository.findAll();
     }
 
     public StartupModel getStartupById(int id) {
-        Optional<StartupModel> result = repo.findById(id);
+        Optional<StartupModel> result = repository.findById(id);
         if(result.isPresent()){
             return result.get();
         }
         return new StartupModel();
     }
 
-    public StartupModel addStartup(StartupModel startup) {
-        if(startup.getName() == null || startup.getName().isEmpty()){
-            throw new IllegalArgumentException("Nome deve ser preenchido");
-        }else if(startup.getFoundationYear()< 1800 || startup.getFoundationYear()>2025){
-            throw new IllegalArgumentException("Digite o ano correto");
+    public StartupModel createStartup(StartupModel startup) {
+        if (startup.getName() == null || startup.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome da startup é obrigatório");
         }
-        return repo.save(startup);
+        if (startup.getSlogan() == null || startup.getSlogan().trim().isEmpty()) {
+            throw new IllegalArgumentException("O slogan da startup é obrigatório");
+        }
+        if (startup.getFoundationYear() <= 0) {
+            throw new IllegalArgumentException("O ano de fundação deve ser válido");
+        }
+
+
+        if (startup.getPoints() <= 0) {
+            startup.setPoints(70);
+        }
+        return repository.save(startup);
     }
 
     public StartupModel updateStartup(int id, StartupModel updatedStartup) {
-        StartupModel oldStartup = getStartupById(id);
-        if (oldStartup.getId() == 0) {
+        StartupModel existingStartup = getStartupById(id);
+        if (existingStartup.getId() == 0) {
             throw new RuntimeException("Startup não encontrada");
         }
+        existingStartup.setName(updatedStartup.getName());
+        existingStartup.setSlogan(updatedStartup.getSlogan());
+        existingStartup.setFoundationYear(updatedStartup.getFoundationYear());
 
-        oldStartup.setName(updatedStartup.getName());
-        oldStartup.setSlogan(updatedStartup.getSlogan());
-        oldStartup.setFoundationYear(updatedStartup.getFoundationYear());
-        oldStartup.setPoints(updatedStartup.getPoints());
-        // pontuacoes atualizadas
-        oldStartup.setBugProd(updatedStartup.getBugProd());
-        oldStartup.setFakeNewsP(updatedStartup.getFakeNewsP());
-        oldStartup.setIrritInv(updatedStartup.getIrritInv());
-        oldStartup.setGoodPitch(updatedStartup.getGoodPitch());
-        oldStartup.setUserTract(updatedStartup.getUserTract());
-        oldStartup.setSharkFights(updatedStartup.getSharkFights());
-
-        return repo.save(oldStartup);
+        return repository.save(existingStartup);
     }
 
+    public void deleteStartup(int id) {
+        Optional<StartupModel> startup = repository.findById(id);
+        if (startup.isPresent()) {
+            repository.deleteById(id);
+        } else {
+            throw new RuntimeException("Startup não encontrada");
+        }
+    }
 
+    public void resetStartupPoints(int id) {
+        StartupModel startup = getStartupById(id);
+        if (startup.getId() == 0) {
+            throw new RuntimeException("Startup não encontrada");
+        }
+        startup.setPoints(70);
+        startup.setGoodPitch(0);
+        startup.setBugProd(0);
+        startup.setUserTract(0);
+        startup.setIrritInv(0);
+        startup.setFakeNewsP(0);
+        startup.setSharkFights(0);
+        startup.setWins(0);
+        repository.save(startup);
+    }
+
+    public void registerStartupInTournament(int startupId, int tournamentId) {
+        StartupModel startup = getStartupById(startupId);
+        if (startup.getId() == 0) {
+            throw new RuntimeException("Startup não encontrada");
+        }
+        TournamentModel tournament = tournamentRepository.findById(tournamentId)
+                .orElseThrow(() -> new RuntimeException("Torneio não encontrado"));
+        tournament.getStartups().add(startup);
+        tournamentRepository.save(tournament);
+    }
 }

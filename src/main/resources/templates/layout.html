@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Startup Rush</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #224abe;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+        }
+
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding-bottom: 60px;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 0 1rem;
+        }
+
+        .nav-item .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .nav-item .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.35rem;
+        }
+
+        .nav-item .nav-link.active {
+            color: white;
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 0.35rem;
+        }
+
+        .nav-item .nav-link i {
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            height: 70px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 250px;
+            z-index: 900;
+            transition: all 0.3s;
+        }
+
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: 2.5rem;
+            margin: auto 1rem;
+        }
+
+        .container-fluid {
+            padding-top: 90px;
+        }
+
+        .alert {
+            border-radius: 0.35rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: calc(100% - 250px);
+            margin-left: 250px;
+            height: 50px;
+            background-color: white;
+            color: #5a5c69;
+            text-align: center;
+            line-height: 50px;
+            border-top: 1px solid #e3e6f0;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100px;
+            }
+            .sidebar-header {
+                font-size: 1rem;
+                padding: 1rem 0.5rem;
+            }
+            .nav-item .nav-link span {
+                display: none;
+            }
+            .nav-item .nav-link i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            .content-wrapper, .topbar, .footer {
+                margin-left: 100px;
+                left: 100px;
+                width: calc(100% - 100px);
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-rocket me-2"></i>
+        Startup Rush
+    </div>
+    <hr class="sidebar-divider">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI() == '/' ? 'active' : ''}" href="/">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/startups') ? 'active' : ''}" href="/startups">
+                <i class="fas fa-rocket"></i>
+                <span>Startups</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/tournaments') ? 'active' : ''}" href="/tournaments">
+                <i class="fas fa-trophy"></i>
+                <span>Torneios</span>
+            </a>
+        </li>
+    </ul>
+    <hr class="sidebar-divider">
+</div>
+
+<!-- Topbar -->
+<nav class="topbar navbar navbar-expand navbar-light">
+    <div class="container-fluid">
+        <div class="d-flex align-items-center">
+            <h4 class="me-3 mb-0 text-gray-800" th:text="${#httpServletRequest.getRequestURI() == '/' ? 'Dashboard' : (#httpServletRequest.getRequestURI().startsWith('/startups') ? 'Gerenciamento de Startups' : (#httpServletRequest.getRequestURI().startsWith('/tournaments') ? 'Gerenciamento de Torneios' : 'Startup Rush'))}">Dashboard</h4>
+        </div>
+        <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider"></div>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                    <span class="me-2 d-none d-lg-inline text-gray-600 small">Admin</span>
+                    <img class="img-profile rounded-circle" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" style="height: 32px; width: 32px;">
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Content Wrapper -->
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div layout:fragment="content">
+            <!-- Conteúdo da página será inserido aqui -->
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <span>Startup Rush &copy; 2025 - Desenvolvido por Victor Duarte</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Detalhes da Batalha</title>
+    <style>
+        .startup-card {
+            transition: all 0.3s ease;
+        }
+        .startup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .event-btn {
+            margin-bottom: 8px;
+        }
+        .winner-highlight {
+            border: 3px solid #28a745;
+        }
+        .shark-fight-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Batalha #<span th:text="${battle.id}"></span></h1>
+        <div>
+            <a th:href="@{/rounds/{id}(id=${battle.round.roundId})}" class="btn btn-secondary">Voltar</a>
+            <form th:if="${battle.status.toString() == 'PENDENTE' && battle.participants.size() == 2}"
+                  th:action="@{/battles/{id}/finalize(id=${battle.id})}"
+                  method="post" style="display: inline;">
+                <button type="submit" class="btn btn-success">Finalizar Batalha</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="alert alert-info mb-4">
+        <p>
+            <strong>Rodada:</strong> <span th:text="${battle.round.numero}"></span> |
+            <strong>Status da Batalha:</strong>
+            <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-warning">Pendente</span>
+            <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
+            <span th:if="${battle.sharkFight}" class="badge bg-danger ms-2">Shark Fight</span>
+        </p>
+        <p th:if="${battle.winner != null}">
+            <strong>Vencedor:</strong> <span th:text="${battle.winner.name}"></span>
+        </p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4" th:each="participant, participantStat : ${battle.participants}">
+            <div class="card startup-card position-relative"
+                 th:classappend="${battle.winner != null && battle.winner.id == participant.startup.id ? 'winner-highlight' : ''}">
+                <div class="card-header"
+                     th:classappend="${participantStat.index == 0 ? 'bg-primary' : 'bg-info'} + ' text-white'">
+                    <h5 class="mb-0" th:text="${participant.startup.name}"></h5>
+                </div>
+                <div th:if="${participant.ganhouSharkFight}" class="shark-fight-badge">
+                    <span class="badge rounded-pill bg-danger">Vencedor do Shark Fight</span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <p><strong>Slogan:</strong> <span th:text="${participant.startup.slogan}"></span></p>
+                        <p><strong>Pontuação Inicial:</strong> <span th:text="${participant.pontuacaoInicial}"></span></p>
+                        <p><strong>Pontuação Atual:</strong> <span th:text="${participant.pontuacaoFinal}"></span></p>
+                    </div>
+
+                    <h6>Eventos Aplicados:</h6>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item list-group-item-success" th:if="${participant.pitchConvincente}">
+                            Pitch Convincente (+6 pontos)
+                        </li>
+                        <li class="list-group-item list-group-item-danger" th:if="${participant.produtoComBugs}">
+                            Produto com Bugs (-4 pontos)
+                        </li>
+                        <li class="list-group-item list-group-item-success" th:if="${participant.boaTracaoUsuarios}">
+                            Boa Tração de Usuários (+3 pontos)
+                        </li>
+                        <li class="list-group-item list-group-item-danger" th:if="${participant.investidorIrritado}">
+                            Investidor Irritado (-6 pontos)
+                        </li>
+                        <li class="list-group-item list-group-item-danger" th:if="${participant.fakeNewsNoPitch}">
+                            Fake News no Pitch (-8 pontos)
+                        </li>
+                    </ul>
+
+                    <div th:if="${battle.status.toString() == 'PENDENTE'}">
+                        <h6>Aplicar Eventos:</h6>
+                        <div class="d-grid gap-2">
+                            <form th:action="@{/battles/{battleId}/startup/{startupId}/pitch(battleId=${battle.id}, startupId=${participant.startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-success event-btn w-100"
+                                        th:disabled="${participant.pitchConvincente}">
+                                    Pitch Convincente (+6)
+                                </button>
+                            </form>
+
+                            <form th:action="@{/battles/{battleId}/startup/{startupId}/bugs(battleId=${battle.id}, startupId=${participant.startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                        th:disabled="${participant.produtoComBugs}">
+                                    Produto com Bugs (-4)
+                                </button>
+                            </form>
+
+                            <form th:action="@{/battles/{battleId}/startup/{startupId}/traction(battleId=${battle.id}, startupId=${participant.startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-success event-btn w-100"
+                                        th:disabled="${participant.boaTracaoUsuarios}">
+                                    Boa Tração de Usuários (+3)
+                                </button>
+                            </form>
+
+                            <form th:action="@{/battles/{battleId}/startup/{startupId}/investor(battleId=${battle.id}, startupId=${participant.startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                        th:disabled="${participant.investidorIrritado}">
+                                    Investidor Irritado (-6)
+                                </button>
+                            </form>
+
+                            <form th:action="@{/battles/{battleId}/startup/{startupId}/fakenews(battleId=${battle.id}, startupId=${participant.startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                        th:disabled="${participant.fakeNewsNoPitch}">
+                                    Fake News no Pitch (-8)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

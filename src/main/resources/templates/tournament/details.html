@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Detalhes do Torneio</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Torneio #<span th:text="${tournament.tournamentId}"></span></h1>
+    <div>
+      <a th:href="@{/tournaments}" class="btn btn-secondary">Voltar</a>
+      <a th:if="${tournament.status.toString() == 'NAO_INICIADO'}"
+         th:href="@{/tournaments/{id}/startups(id=${tournament.tournamentId})}"
+         class="btn btn-warning">Gerenciar Startups</a>
+
+      <form th:if="${tournament.status.toString() == 'NAO_INICIADO' && tournament.startups.size() >= 4}"
+            th:action="@{/tournaments/{id}/start(id=${tournament.tournamentId})}"
+            method="post" style="display: inline;">
+        <button type="submit" class="btn btn-success">Iniciar Torneio</button>
+      </form>
+
+      <form th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}"
+            th:action="@{/tournaments/{id}/next-round(id=${tournament.tournamentId})}"
+            method="post" style="display: inline;">
+        <button type="submit" class="btn btn-primary">Avançar para Próxima Rodada</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Informações do Torneio</h5>
+        </div>
+        <div class="card-body">
+          <p><strong>Status:</strong>
+            <span th:if="${tournament.status.toString() == 'NAO_INICIADO'}" class="badge bg-secondary">Não Iniciado</span>
+            <span th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
+            <span th:if="${tournament.status.toString() == 'FINALIZADO'}" class="badge bg-success">Finalizado</span>
+          </p>
+          <p><strong>Rodada Atual:</strong> <span th:text="${tournament.currentRound}"></span></p>
+          <p><strong>Número de Startups:</strong> <span th:text="${tournament.startups.size()}"></span></p>
+          <p th:if="${tournament.champion != null}">
+            <strong>Campeão:</strong> <a th:href="@{/startups/{id}(id=${tournament.champion.id})}" th:text="${tournament.champion.name}"></a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h5 class="mb-0">Startups Participantes</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive" th:if="${not #sets.isEmpty(tournament.startups)}">
+            <table class="table table-sm">
+              <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Pontuação</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="startup : ${tournament.startups}">
+                <td>
+                  <a th:href="@{/startups/{id}(id=${startup.id})}" th:text="${startup.name}"></a>
+                </td>
+                <td th:text="${startup.points}"></td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <div th:if="${#sets.isEmpty(tournament.startups)}">
+            <p>Nenhuma startup registrada neste torneio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4" th:if="${not #lists.isEmpty(rounds)}">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">Rodadas</h5>
+    </div>
+    <div class="card-body">
+      <div class="accordion" id="accordionRounds">
+        <div class="accordion-item" th:each="round, roundStat : ${rounds}">
+          <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                    th:data-bs-target="'#round' + ${round.roundId}"
+                    th:aria-expanded="${roundStat.index == 0 ? 'true' : 'false'}"
+                    th:aria-controls="'round' + ${round.roundId}">
+              <span th:text="'Rodada ' + ${round.numero}"></span>
+              <span th:if="${round.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary ms-2">Em Andamento</span>
+              <span th:if="${round.status.toString() == 'FINALIZADA'}" class="badge bg-success ms-2">Finalizada</span>
+            </button>
+          </h2>
+          <div th:id="'round' + ${round.roundId}" class="accordion-collapse collapse"
+               th:classappend="${roundStat.index == 0 ? 'show' : ''}"
+               data-bs-parent="#accordionRounds">
+            <div class="accordion-body">
+              <h6>Batalhas:</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Participantes</th>
+                    <th>Status</th>
+                    <th>Vencedor</th>
+                    <th>Ações</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="battle : ${round.battles}">
+                    <td th:text="${battle.id}"></td>
+                    <td>
+                      <div th:each="participant : ${battle.participants}">
+                        <span th:text="${participant.startup.name}"></span>
+                        <span class="badge bg-dark" th:text="${participant.pontuacaoFinal}"></span>
+                      </div>
+                    </td>
+                    <td>
+                      <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-warning">Pendente</span>
+                      <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
+                    </td>
+                    <td th:text="${battle.winner != null ? battle.winner.name : '-'}"></td>
+                    <td>
+                      <a th:href="@{/battles/{id}(id=${battle.id})}" class="btn btn-primary btn-sm">Gerenciar</a>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

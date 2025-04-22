@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Gerenciar Startups do Torneio</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gerenciar Startups - Torneio #<span th:text="${tournament.tournamentId}"></span></h1>
+        <div>
+            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-secondary">Voltar</a>
+            <form th:if="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0}"
+                  th:action="@{/tournaments/{id}/start(id=${tournament.tournamentId})}"
+                  method="post" style="display: inline;">
+                <button type="submit" class="btn btn-success">Iniciar Torneio</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Startups Selecionadas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" th:if="${#sets.isEmpty(tournament.startups)}">
+                        <p>Nenhuma startup selecionada para este torneio.</p>
+                    </div>
+                    <div class="list-group" th:if="${not #sets.isEmpty(tournament.startups)}">
+                        <div class="list-group-item d-flex justify-content-between align-items-center"
+                             th:each="startup : ${tournament.startups}">
+                            <span th:text="${startup.name}"></span>
+                            <a th:href="@{/tournaments/{tournamentId}/startups/{startupId}/remove(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Tem certeza que deseja remover esta startup do torneio?')">
+                                Remover
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <p><strong>Total de startups:</strong> <span th:text="${tournament.startups.size()}"></span></p>
+                    <div class="alert alert-warning" th:if="${tournament.startups.size() > 0 && tournament.startups.size() % 2 != 0}">
+                        <p>O número de startups deve ser par para iniciar o torneio.</p>
+                    </div>
+                    <div class="alert alert-warning" th:if="${tournament.startups.size() < 4}">
+                        <p>É necessário ao menos 4 startups para iniciar o torneio.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Startups Disponíveis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info" th:if="${#lists.isEmpty(availableStartups)}">
+                        <p>Nenhuma startup disponível. <a href="/startups/new">Cadastre uma nova startup!</a></p>
+                    </div>
+                    <div class="list-group" th:if="${not #lists.isEmpty(availableStartups)}">
+                        <div class="list-group-item d-flex justify-content-between align-items-center"
+                             th:each="startup : ${availableStartups}"
+                             th:if="${not tournament.startups.contains(startup)}">
+                            <span th:text="${startup.name}"></span>
+                            <form th:action="@{/tournaments/{tournamentId}/startups/{startupId}(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
+                                  method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-primary btn-sm">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
