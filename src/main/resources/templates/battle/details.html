@@ -5,136 +5,484 @@
 <head>
     <title>Detalhes da Batalha</title>
     <style>
+        .page-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .battle-info {
+            padding: 1.25rem;
+            background-color: #f8f9fc;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #4e73df;
+        }
+
+        .battle-info-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .battle-info-icon {
+            margin-right: 0.75rem;
+            color: #4e73df;
+            width: 20px;
+            text-align: center;
+        }
+
         .startup-card {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
             transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            height: 100%;
         }
+
         .startup-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: translateY(-7px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
+
+        .startup-card.winner {
+            border: 3px solid #1cc88a;
+        }
+
+        .card-header-1 {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            border: none;
+        }
+
+        .card-header-2 {
+            background: linear-gradient(135deg, #36b9cc, #1a8a9c);
+            color: white;
+            border: none;
+        }
+
+        .points-badge {
+            font-size: 1.75rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f8f9fc, #e8eafd);
+            color: #4e73df;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
         .event-btn {
-            margin-bottom: 8px;
+            margin-bottom: 0.75rem;
+            border-radius: 10px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
         }
-        .winner-highlight {
-            border: 3px solid #28a745;
+
+        .event-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
+
+        .event-btn.disabled {
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .event-btn .event-icon {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .event-btn .event-points {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1cc88a, #13855c);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74a3b, #be2617);
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            border: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #858796, #6e707e);
+            border: none;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f6c23e, #dda20a);
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #36b9cc, #1a8a9c);
+            border: none;
+            color: white;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .vs-badge {
+            width: 60px;
+            height: 60px;
+            background: #e74a3b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .events-list {
+            background-color: #f8f9fc;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .events-list-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #5a5c69;
+            border-bottom: 1px solid #e3e6f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .event-item {
+            background: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .event-item-icon {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
         .shark-fight-badge {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -12px;
+            right: -12px;
+            background: #e74a3b;
+            color: white;
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
             z-index: 10;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        .winner-badge {
+            background: #1cc88a;
+            color: white;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .finalize-container {
+            background: linear-gradient(135deg, #f6c23e, #dda20a);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .finalize-btn {
+            background-color: white;
+            color: #f6c23e;
+            font-size: 1.1rem;
+            padding: 0.75rem 2rem;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+
+        .finalize-btn:hover {
+            background-color: #f8f9fc;
+            color: #dda20a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Batalha #<span th:text="${battle.id}"></span></h1>
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <a th:href="@{/rounds/{id}(id=${battle.round.roundId})}" class="btn btn-secondary">Voltar</a>
-            <form th:if="${battle.status.toString() == 'PENDENTE' && battle.participants.size() == 2}"
-                  th:action="@{/battles/{id}/finalize(id=${battle.id})}"
-                  method="post" style="display: inline;">
-                <button type="submit" class="btn btn-success">Finalizar Batalha</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="alert alert-info mb-4">
-        <p>
-            <strong>Rodada:</strong> <span th:text="${battle.round.numero}"></span> |
-            <strong>Status da Batalha:</strong>
+            <h1 class="h3 mb-0">Batalha #<span th:text="${battle.id}"></span></h1>
+            <p class="mb-1">Rodada <span th:text="${battle.round.numero}"></span> | Torneio #<span th:text="${battle.round.tournament.tournamentId}"></span></p>
             <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-warning">Pendente</span>
             <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
             <span th:if="${battle.sharkFight}" class="badge bg-danger ms-2">Shark Fight</span>
-        </p>
-        <p th:if="${battle.winner != null}">
-            <strong>Vencedor:</strong> <span th:text="${battle.winner.name}"></span>
-        </p>
+        </div>
+        <div>
+            <a th:href="@{/rounds/{id}(id=${battle.round.roundId})}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+        </div>
     </div>
 
+    <!-- Battle Info -->
+    <div class="battle-info">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="battle-info-item">
+                    <i class="fas fa-flag-checkered battle-info-icon"></i>
+                    <strong>Status:</strong>
+                    <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-warning ms-2">Pendente</span>
+                    <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-success ms-2">Finalizada</span>
+                </div>
+                <div class="battle-info-item" th:if="${battle.winner != null}">
+                    <i class="fas fa-trophy battle-info-icon"></i>
+                    <strong>Vencedor:</strong>
+                    <span class="badge bg-success ms-2" th:text="${battle.winner.name}"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="battle-info-item">
+                    <i class="fas fa-gamepad battle-info-icon"></i>
+                    <strong>Rodada:</strong>
+                    <a th:href="@{/rounds/{id}(id=${battle.round.roundId})}" class="ms-2">
+                        <span th:text="${battle.round.numero}"></span>
+                    </a>
+                </div>
+                <div class="battle-info-item">
+                    <i class="fas fa-trophy battle-info-icon"></i>
+                    <strong>Torneio:</strong>
+                    <a th:href="@{/tournaments/{id}(id=${battle.round.tournament.tournamentId})}" class="ms-2">
+                        #<span th:text="${battle.round.tournament.tournamentId}"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Versus Badge (Center) -->
+    <div class="text-center">
+        <div class="vs-badge">VS</div>
+    </div>
+
+    <!-- Startups Cards -->
     <div class="row">
         <div class="col-md-6 mb-4" th:each="participant, participantStat : ${battle.participants}">
-            <div class="card startup-card position-relative"
-                 th:classappend="${battle.winner != null && battle.winner.id == participant.startup.id ? 'winner-highlight' : ''}">
-                <div class="card-header"
-                     th:classappend="${participantStat.index == 0 ? 'bg-primary' : 'bg-info'} + ' text-white'">
+            <div class="startup-card position-relative"
+                 th:classappend="${battle.winner != null && battle.winner.id == participant.startup.id ? 'winner' : ''}">
+
+                <!-- Shark Fight Winner Badge -->
+                <div th:if="${participant.ganhouSharkFight}" class="shark-fight-badge">
+                    <i class="fas fa-bolt me-1"></i>Vencedor do Shark Fight
+                </div>
+
+                <div class="card-header py-3"
+                     th:classappend="${participantStat.index == 0 ? 'card-header-1' : 'card-header-2'}">
                     <h5 class="mb-0" th:text="${participant.startup.name}"></h5>
                 </div>
-                <div th:if="${participant.ganhouSharkFight}" class="shark-fight-badge">
-                    <span class="badge rounded-pill bg-danger">Vencedor do Shark Fight</span>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <p><strong>Slogan:</strong> <span th:text="${participant.startup.slogan}"></span></p>
-                        <p><strong>Pontuação Inicial:</strong> <span th:text="${participant.pontuacaoInicial}"></span></p>
-                        <p><strong>Pontuação Atual:</strong> <span th:text="${participant.pontuacaoFinal}"></span></p>
+
+                <div class="card-body py-4 px-4">
+                    <!-- Winner Badge -->
+                    <div th:if="${battle.winner != null && battle.winner.id == participant.startup.id}"
+                         class="winner-badge">
+                        <i class="fas fa-trophy me-2"></i>Vencedor
                     </div>
 
-                    <h6>Eventos Aplicados:</h6>
-                    <ul class="list-group mb-3">
-                        <li class="list-group-item list-group-item-success" th:if="${participant.pitchConvincente}">
-                            Pitch Convincente (+6 pontos)
-                        </li>
-                        <li class="list-group-item list-group-item-danger" th:if="${participant.produtoComBugs}">
-                            Produto com Bugs (-4 pontos)
-                        </li>
-                        <li class="list-group-item list-group-item-success" th:if="${participant.boaTracaoUsuarios}">
-                            Boa Tração de Usuários (+3 pontos)
-                        </li>
-                        <li class="list-group-item list-group-item-danger" th:if="${participant.investidorIrritado}">
-                            Investidor Irritado (-6 pontos)
-                        </li>
-                        <li class="list-group-item list-group-item-danger" th:if="${participant.fakeNewsNoPitch}">
-                            Fake News no Pitch (-8 pontos)
-                        </li>
-                    </ul>
+                    <!-- Startup Info -->
+                    <div class="mb-3">
+                        <p><strong>Slogan:</strong> <span th:text="${participant.startup.slogan}"></span></p>
 
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <p class="mb-0"><strong>Pontuação Inicial:</strong></p>
+                                <div class="points-badge" th:text="${participant.pontuacaoInicial}"></div>
+                            </div>
+                            <div>
+                                <p class="mb-0"><strong>Pontuação Atual:</strong></p>
+                                <div class="points-badge" th:text="${participant.pontuacaoFinal}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events Applied -->
+                    <div class="events-list">
+                        <h6 class="events-list-title">
+                            <i class="fas fa-history me-2"></i>Eventos Aplicados
+                        </h6>
+
+                        <div class="event-item bg-success-subtle" th:if="${participant.pitchConvincente}">
+                            <i class="fas fa-bullhorn event-item-icon text-success"></i>
+                            <span>Pitch Convincente (+6 pontos)</span>
+                        </div>
+
+                        <div class="event-item bg-danger-subtle" th:if="${participant.produtoComBugs}">
+                            <i class="fas fa-bug event-item-icon text-danger"></i>
+                            <span>Produto com Bugs (-4 pontos)</span>
+                        </div>
+
+                        <div class="event-item bg-success-subtle" th:if="${participant.boaTracaoUsuarios}">
+                            <i class="fas fa-users event-item-icon text-success"></i>
+                            <span>Boa Tração de Usuários (+3 pontos)</span>
+                        </div>
+
+                        <div class="event-item bg-warning-subtle" th:if="${participant.investidorIrritado}">
+                            <i class="fas fa-angry event-item-icon text-warning"></i>
+                            <span>Investidor Irritado (-6 pontos)</span>
+                        </div>
+
+                        <div class="event-item bg-dark-subtle" th:if="${participant.fakeNewsNoPitch}">
+                            <i class="fas fa-newspaper event-item-icon text-dark"></i>
+                            <span>Fake News no Pitch (-8 pontos)</span>
+                        </div>
+
+                        <div class="event-item bg-danger-subtle" th:if="${participant.ganhouSharkFight}">
+                            <i class="fas fa-bolt event-item-icon text-danger"></i>
+                            <span>Ganhou Shark Fight (+2 pontos)</span>
+                        </div>
+
+                        <!-- No events message -->
+                        <p class="text-muted small mb-0"
+                           th:if="${!participant.pitchConvincente && !participant.produtoComBugs && !participant.boaTracaoUsuarios && !participant.investidorIrritado && !participant.fakeNewsNoPitch && !participant.ganhouSharkFight}">
+                            Nenhum evento aplicado
+                        </p>
+                    </div>
+
+                    <!-- Apply Events Buttons (only if battle is pending) -->
                     <div th:if="${battle.status.toString() == 'PENDENTE'}">
-                        <h6>Aplicar Eventos:</h6>
+                        <h6 class="events-list-title">
+                            <i class="fas fa-bolt me-2"></i>Aplicar Eventos
+                        </h6>
+
                         <div class="d-grid gap-2">
                             <form th:action="@{/battles/{battleId}/startup/{startupId}/pitch(battleId=${battle.id}, startupId=${participant.startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-success event-btn w-100"
+                                  method="post">
+                                <button type="submit" class="btn btn-success event-btn"
                                         th:disabled="${participant.pitchConvincente}">
-                                    Pitch Convincente (+6)
+                                    <i class="fas fa-bullhorn event-icon"></i>
+                                    Pitch Convincente
+                                    <span class="event-points">+6</span>
                                 </button>
                             </form>
 
                             <form th:action="@{/battles/{battleId}/startup/{startupId}/bugs(battleId=${battle.id}, startupId=${participant.startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                  method="post">
+                                <button type="submit" class="btn btn-danger event-btn"
                                         th:disabled="${participant.produtoComBugs}">
-                                    Produto com Bugs (-4)
+                                    <i class="fas fa-bug event-icon"></i>
+                                    Produto com Bugs
+                                    <span class="event-points">-4</span>
                                 </button>
                             </form>
 
                             <form th:action="@{/battles/{battleId}/startup/{startupId}/traction(battleId=${battle.id}, startupId=${participant.startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-success event-btn w-100"
+                                  method="post">
+                                <button type="submit" class="btn btn-primary event-btn"
                                         th:disabled="${participant.boaTracaoUsuarios}">
-                                    Boa Tração de Usuários (+3)
+                                    <i class="fas fa-users event-icon"></i>
+                                    Boa Tração de Usuários
+                                    <span class="event-points">+3</span>
                                 </button>
                             </form>
 
                             <form th:action="@{/battles/{battleId}/startup/{startupId}/investor(battleId=${battle.id}, startupId=${participant.startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                  method="post">
+                                <button type="submit" class="btn btn-warning event-btn"
                                         th:disabled="${participant.investidorIrritado}">
-                                    Investidor Irritado (-6)
+                                    <i class="fas fa-angry event-icon"></i>
+                                    Investidor Irritado
+                                    <span class="event-points">-6</span>
                                 </button>
                             </form>
 
                             <form th:action="@{/battles/{battleId}/startup/{startupId}/fakenews(battleId=${battle.id}, startupId=${participant.startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-danger event-btn w-100"
+                                  method="post">
+                                <button type="submit" class="btn btn-dark event-btn"
                                         th:disabled="${participant.fakeNewsNoPitch}">
-                                    Fake News no Pitch (-8)
+                                    <i class="fas fa-newspaper event-icon"></i>
+                                    Fake News no Pitch
+                                    <span class="event-points">-8</span>
                                 </button>
                             </form>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finalize Battle Button (only if battle is pending) -->
+    <div class="finalize-container" th:if="${battle.status.toString() == 'PENDENTE' && battle.participants.size() == 2}">
+        <h4 class="mb-2"><i class="fas fa-flag-checkered me-2"></i>Pronto para Finalizar a Batalha?</h4>
+        <p>Uma vez finalizada, não será possível aplicar mais eventos. O vencedor receberá +30 pontos.</p>
+
+        <form th:action="@{/battles/{id}/finalize(id=${battle.id})}" method="post">
+            <button type="submit" class="btn finalize-btn">
+                <i class="fas fa-trophy me-2"></i>Finalizar Batalha
+            </button>
+        </form>
+    </div>
+
+    <!-- Already Finalized Message -->
+    <div class="alert alert-success" th:if="${battle.status.toString() == 'FINALIZADA'}">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle fa-2x me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Batalha Finalizada</h5>
+                <p class="mb-0">Esta batalha já foi finalizada. O vencedor foi
+                    <strong th:text="${battle.winner.name}"></strong>
+                    <span th:if="${battle.sharkFight}">(após um Shark Fight)</span>.
+                </p>
             </div>
         </div>
     </div>

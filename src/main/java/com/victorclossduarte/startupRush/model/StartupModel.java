@@ -20,16 +20,20 @@ public class StartupModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     private String slogan;
+
     @Column(nullable = false)
     private int foundationYear;
+
     @Column(nullable = false)
     private int points = 70;
 
-    // atributos de pontuacao
+    // atributos de pontuação
     private int goodPitch = 0;
     private int bugProd = 0;
     private int userTract = 0;
@@ -38,15 +42,26 @@ public class StartupModel {
     private int sharkFights = 0;
     private int wins = 0;
 
-
     // muitas startups participam de muitos torneios
-    // estrutura de caso para a criacao de varios torneios na memoria
-    @ManyToMany(mappedBy = "startups")
+    // Importante: usar EAGER para garantir que os dados sejam carregados
+    @ManyToMany(mappedBy = "startups", fetch = FetchType.EAGER)
     private Set<TournamentModel> tournaments = new HashSet<>();
 
-    // 1 startup pode ter varias participacoes
+    // 1 startup pode ter várias participações
     @OneToMany(mappedBy = "startup")
     private List<StartupBattleModel> participations = new ArrayList<>();
 
+    // Método para equals e hashCode baseado apenas no ID
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StartupModel that = (StartupModel) o;
+        return id == that.id;
+    }
 
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
 }

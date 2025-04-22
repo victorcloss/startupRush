@@ -15,7 +15,7 @@ public class BattleController {
     private BattleService battleService;
 
     @GetMapping("/{id}")
-    public String getBattleDetails(@PathVariable long id, Model model) {
+    public String getBattleDetails(@PathVariable int id, Model model) {
         try {
             BattleModel battle = battleService.getBattleById(id);
             model.addAttribute("battle", battle);
@@ -28,7 +28,7 @@ public class BattleController {
     // Métodos para aplicar eventos nas batalhas
 
     @PostMapping("/{battleId}/startup/{startupId}/pitch")
-    public String applyPitchConvincente(@PathVariable long battleId, @PathVariable int startupId,
+    public String applyPitchConvincente(@PathVariable int battleId, @PathVariable int startupId,
                                         RedirectAttributes redirectAttributes) {
         try {
             battleService.applyPitchConvincente(battleId, startupId);
@@ -40,7 +40,7 @@ public class BattleController {
     }
 
     @PostMapping("/{battleId}/startup/{startupId}/bugs")
-    public String applyProdutoComBugs(@PathVariable long battleId, @PathVariable int startupId,
+    public String applyProdutoComBugs(@PathVariable int battleId, @PathVariable int startupId,
                                       RedirectAttributes redirectAttributes) {
         try {
             battleService.applyProdutoComBugs(battleId, startupId);
@@ -52,7 +52,7 @@ public class BattleController {
     }
 
     @PostMapping("/{battleId}/startup/{startupId}/traction")
-    public String applyBoaTracaoUsuarios(@PathVariable long battleId, @PathVariable int startupId,
+    public String applyBoaTracaoUsuarios(@PathVariable int battleId, @PathVariable int startupId,
                                          RedirectAttributes redirectAttributes) {
         try {
             battleService.applyBoaTracaoUsuarios(battleId, startupId);
@@ -64,7 +64,7 @@ public class BattleController {
     }
 
     @PostMapping("/{battleId}/startup/{startupId}/investor")
-    public String applyInvestidorIrritado(@PathVariable long battleId, @PathVariable int startupId,
+    public String applyInvestidorIrritado(@PathVariable int battleId, @PathVariable int startupId,
                                           RedirectAttributes redirectAttributes) {
         try {
             battleService.applyInvestidorIrritado(battleId, startupId);
@@ -76,7 +76,7 @@ public class BattleController {
     }
 
     @PostMapping("/{battleId}/startup/{startupId}/fakenews")
-    public String applyFakeNewsNoPitch(@PathVariable long battleId, @PathVariable int startupId,
+    public String applyFakeNewsNoPitch(@PathVariable int battleId, @PathVariable int startupId,
                                        RedirectAttributes redirectAttributes) {
         try {
             battleService.applyFakeNewsNoPitch(battleId, startupId);
@@ -88,7 +88,7 @@ public class BattleController {
     }
 
     @PostMapping("/{id}/finalize")
-    public String finalizeBattle(@PathVariable long id, RedirectAttributes redirectAttributes) {
+    public String finalizeBattle(@PathVariable int id, RedirectAttributes redirectAttributes) {
         try {
             BattleModel battle = battleService.finalizeBattle(id);
             String message = "Batalha finalizada com sucesso! Vencedor: " + battle.getWinner().getName();
@@ -96,9 +96,15 @@ public class BattleController {
                 message += " (após SharkFight)";
             }
             redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/rounds/" + battle.getRound().getRoundId();
+
+            if (battle.getRound() != null) {
+                return "redirect:/rounds/" + battle.getRound().getRoundId();
+            } else {
+                return "redirect:/";
+            }
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Erro ao finalizar a batalha: " + e.getMessage());
             return "redirect:/battles/" + id;
         }
     }

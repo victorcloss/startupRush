@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 @Table(name = "tb_battles")
@@ -18,8 +19,7 @@ public class BattleModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "rodada_id", nullable = false)
@@ -36,10 +36,7 @@ public class BattleModel {
     @OneToOne
     private StartupModel winner;
 
-
-
-    // metodos de pontuacao
-
+    // métodos de pontuação
     public void pitchConv(StartupModel startupX) {
         startupX.setPoints(startupX.getPoints() + 6);
     }
@@ -66,21 +63,37 @@ public class BattleModel {
 
     public StartupModel verifyWinner(StartupModel startupX, StartupModel startupY) {
         if (startupX.getPoints() > startupY.getPoints()) {
-           this.winner = startupX;
-        } else if (startupX.getPoints()< startupY.getPoints()) {
+            this.winner = startupX;
+        } else if (startupX.getPoints() < startupY.getPoints()) {
             this.winner = startupY;
-        } else{this.winner = sharkFight(startupX, startupY);}
-    return this.winner;
+        } else {
+            this.winner = sharkFight(startupX, startupY);
+        }
+        return this.winner;
     }
 
     public StartupModel sharkFight(StartupModel startupX, StartupModel startupY) {
-
-        // terminar logica de sharkFight usando random
-        // Se houver empate ao final da batalha, o sistema automaticamente realiza uma Shark Fight, uma
+        // Implementação da lógica SharkFight usando random
+        // "Se houver empate ao final da batalha, o sistema automaticamente realiza uma Shark Fight, uma
         // rodada relâmpago onde uma startup recebe aleatoriamente +2 pontos. O novo placar decide a
-        //vencedora da disputa.
+        // vencedora da disputa."
 
+        this.sharkFight = true;
 
-        return startupX;
+        Random random = new Random();
+        boolean isStartup1Winner = random.nextBoolean();
+
+        StartupModel winner;
+        if (isStartup1Winner) {
+            startupX.setPoints(startupX.getPoints() + 2);
+            startupX.setSharkFights(startupX.getSharkFights() + 1);
+            winner = startupX;
+        } else {
+            startupY.setPoints(startupY.getPoints() + 2);
+            startupY.setSharkFights(startupY.getSharkFights() + 1);
+            winner = startupY;
+        }
+
+        return winner;
     }
 }

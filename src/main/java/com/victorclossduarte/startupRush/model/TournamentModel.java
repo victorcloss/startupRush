@@ -25,10 +25,11 @@ public class TournamentModel {
     @Enumerated(EnumType.STRING)
     private TournamentStatus status = TournamentStatus.NAO_INICIADO;
 
-    private int currentRound =0;
+    private int currentRound = 0;
 
     // registro startups no torneio
-    @ManyToMany
+    // Importante: usar EAGER para garantir que os dados sejam carregados
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tournament_startup",
             joinColumns = @JoinColumn(name = "tournament_id"),
@@ -42,6 +43,12 @@ public class TournamentModel {
     @OneToOne
     private StartupModel champion;
 
+    // Métodos para ajudar no gerenciamento da relação com startups
+    public void addStartup(StartupModel startup) {
+        this.startups.add(startup);
+    }
 
-
+    public void removeStartup(StartupModel startup) {
+        this.startups.remove(startup);
+    }
 }

@@ -7,6 +7,7 @@ import com.victorclossduarte.startupRush.model.*;
 import com.victorclossduarte.startupRush.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -43,22 +44,30 @@ public class TournamentService {
         return tournamentRepository.save(tournament);
     }
 
+    @Transactional
     public TournamentModel addStartupToTournament(int tournamentId, int startupId) {
         TournamentModel tournament = getTournamentById(tournamentId);
 
         if (tournament.getStatus() != TournamentStatus.NAO_INICIADO) {
             throw new RuntimeException("Não é possível adicionar startups em um torneio já iniciado");
         }
+
         StartupModel startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
+
+        // Verificar se a startup já está no torneio
         if (tournament.getStartups().contains(startup)) {
             throw new RuntimeException("Startup já está registrada neste torneio");
         }
+
+        // Adiciona a startup ao torneio
         tournament.getStartups().add(startup);
 
+        // Salva o torneio com a nova startup
         return tournamentRepository.save(tournament);
     }
 
+    @Transactional
     public TournamentModel removeStartupFromTournament(int tournamentId, int startupId) {
         TournamentModel tournament = getTournamentById(tournamentId);
 
@@ -69,10 +78,12 @@ public class TournamentService {
         StartupModel startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
 
+        // Remove a startup do torneio
         tournament.getStartups().remove(startup);
         return tournamentRepository.save(tournament);
     }
 
+    @Transactional
     public TournamentModel startTournament(int tournamentId) {
         TournamentModel tournament = getTournamentById(tournamentId);
 
@@ -101,6 +112,7 @@ public class TournamentService {
         return tournament;
     }
 
+    @Transactional
     public RoundModel createNewRound(TournamentModel tournament) {
         int roundNumber = tournament.getCurrentRound();
 
@@ -165,6 +177,7 @@ public class TournamentService {
         battle.getParticipants().add(participation);
     }
 
+    @Transactional
     public TournamentModel advanceToNextRound(int tournamentId) {
         TournamentModel tournament = getTournamentById(tournamentId);
 

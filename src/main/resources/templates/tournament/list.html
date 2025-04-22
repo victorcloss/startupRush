@@ -4,52 +4,261 @@
       layout:decorate="~{layout}">
 <head>
   <title>Torneios</title>
+  <style>
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: none;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    .btn {
+      border-radius: 10px;
+      padding: 8px 20px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4e73df, #224abe);
+      border: none;
+    }
+    .btn-info {
+      background: linear-gradient(135deg, #36b9cc, #1a8a9c);
+      border: none;
+      color: white;
+    }
+    .btn-warning {
+      background: linear-gradient(135deg, #f6c23e, #dda20a);
+      border: none;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    .table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+    .table th {
+      background: linear-gradient(135deg, #4e73df, #224abe);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      padding: 15px;
+      border: none;
+    }
+    .table td {
+      vertical-align: middle;
+      padding: 12px 15px;
+      border-top: 1px solid #e3e6f0;
+    }
+    .table tr:hover {
+      background-color: #f8f9fc;
+    }
+    .badge {
+      padding: 6px 12px;
+      font-weight: 600;
+      border-radius: 30px;
+    }
+    .tournament-count {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #4e73df;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      background-color: #f8f9fc;
+      border-radius: 15px;
+      margin-top: 2rem;
+    }
+    .empty-state img {
+      max-width: 200px;
+      margin-bottom: 1.5rem;
+    }
+    .stats-card {
+      background: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    .stats-icon {
+      font-size: 2rem;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+  </style>
 </head>
 <body>
 <div layout:fragment="content">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex justify-content-between align-items-center page-header">
     <h1>Lista de Torneios</h1>
-    <a href="/tournaments/new" class="btn btn-primary">Novo Torneio</a>
+    <a href="/tournaments/new" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-2"></i>Novo Torneio
+    </a>
   </div>
 
-  <div class="table-responsive">
-    <table class="table table-striped table-hover">
-      <thead class="table-dark">
-      <tr>
-        <th>ID</th>
-        <th>Status</th>
-        <th>Rodada Atual</th>
-        <th>Startups</th>
-        <th>Campeão</th>
-        <th>Ações</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="tournament : ${tournaments}">
-        <td th:text="${tournament.tournamentId}"></td>
-        <td>
-          <span th:if="${tournament.status.toString() == 'NAO_INICIADO'}" class="badge bg-secondary">Não Iniciado</span>
-          <span th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
-          <span th:if="${tournament.status.toString() == 'FINALIZADO'}" class="badge bg-success">Finalizado</span>
-        </td>
-        <td th:text="${tournament.currentRound}"></td>
-        <td th:text="${tournament.startups.size()}"></td>
-        <td th:text="${tournament.champion != null ? tournament.champion.name : '-'}"></td>
-        <td>
-          <div class="btn-group" role="group">
-            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-info btn-sm">Detalhes</a>
-            <a th:if="${tournament.status.toString() == 'NAO_INICIADO'}"
-               th:href="@{/tournaments/{id}/startups(id=${tournament.tournamentId})}"
-               class="btn btn-warning btn-sm">Gerenciar Startups</a>
+  <!-- Stats Row -->
+  <div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                Total de Torneios</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${tournaments.size()}">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-trophy fa-2x text-gray-300"></i>
+            </div>
           </div>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                Torneios Ativos</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800"
+                   th:text="${tournaments.stream().filter(t -> t.getStatus().toString() == 'EM_ANDAMENTO').count()}">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-flag-checkered fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                Torneios Finalizados</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800"
+                   th:text="${tournaments.stream().filter(t -> t.getStatus().toString() == 'FINALIZADO').count()}">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-medal fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                Torneios Aguardando</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800"
+                   th:text="${tournaments.stream().filter(t -> t.getStatus().toString() == 'NAO_INICIADO').count()}">0</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="alert alert-info" th:if="${#lists.isEmpty(tournaments)}">
-    <p>Nenhum torneio cadastrado. <a href="/tournaments/new">Cadastre um novo torneio!</a></p>
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+      <h6 class="m-0 font-weight-bold text-primary">Torneios</h6>
+      <div>
+        <a href="/" class="btn btn-sm btn-outline-primary">
+          <i class="fas fa-home me-1"></i> Dashboard
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Rodada Atual</th>
+            <th>Startups</th>
+            <th>Campeão</th>
+            <th>Ações</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="tournament : ${tournaments}">
+            <td th:text="${tournament.tournamentId}"></td>
+            <td>
+              <span th:if="${tournament.status.toString() == 'NAO_INICIADO'}" class="badge bg-secondary">Não Iniciado</span>
+              <span th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
+              <span th:if="${tournament.status.toString() == 'FINALIZADO'}" class="badge bg-success">Finalizado</span>
+            </td>
+            <td th:text="${tournament.currentRound}"></td>
+            <td>
+              <span class="badge bg-info" th:text="${tournament.startups.size()}"></span>
+            </td>
+            <td>
+              <span th:if="${tournament.champion != null}">
+                <a th:href="@{/startups/{id}(id=${tournament.champion.id})}" class="text-decoration-none">
+                  <span class="badge bg-warning" th:text="${tournament.champion.name}"></span>
+                </a>
+              </span>
+              <span th:unless="${tournament.champion != null}">-</span>
+            </td>
+            <td>
+              <div class="btn-group" role="group">
+                <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-info btn-sm" title="Detalhes">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a th:if="${tournament.status.toString() == 'NAO_INICIADO'}"
+                   th:href="@{/tournaments/{id}/startups(id=${tournament.tournamentId})}"
+                   class="btn btn-warning btn-sm" title="Gerenciar Startups">
+                  <i class="fas fa-users-cog"></i>
+                </a>
+                <a th:if="${tournament.status.toString() == 'EM_ANDAMENTO'}"
+                   th:href="@{/tournaments/{id}/current-round(id=${tournament.tournamentId})}"
+                   class="btn btn-success btn-sm" title="Rodada Atual">
+                  <i class="fas fa-gamepad"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" th:if="${#lists.isEmpty(tournaments)}">
+    <img src="https://cdn-icons-png.flaticon.com/512/2972/2972173.png" alt="Nenhum torneio" class="mb-4">
+    <h3>Nenhum torneio cadastrado</h3>
+    <p class="text-muted">Cadastre seu primeiro torneio para iniciar as competições entre startups!</p>
+    <a href="/tournaments/new" class="btn btn-primary mt-3">
+      <i class="fas fa-plus-circle me-2"></i>Criar Torneio
+    </a>
   </div>
 </div>
 </body>

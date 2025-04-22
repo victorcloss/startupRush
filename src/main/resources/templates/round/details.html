@@ -4,62 +4,320 @@
       layout:decorate="~{layout}">
 <head>
   <title>Detalhes da Rodada</title>
+  <style>
+    .page-header {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #4e73df, #224abe);
+      color: white;
+      border-radius: 15px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .battle-card {
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: none;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      height: 100%;
+    }
+
+    .battle-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header-pending {
+      background: linear-gradient(135deg, #f6c23e, #dda20a);
+      color: white;
+      border: none;
+    }
+
+    .card-header-completed {
+      background: linear-gradient(135deg, #1cc88a, #13855c);
+      color: white;
+      border: none;
+    }
+
+    .startup-item {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 10px;
+      background: #f8f9fc;
+      position: relative;
+    }
+
+    .startup-item:hover {
+      background: #eaecf4;
+    }
+
+    .round-status-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .in-progress {
+      background-color: #4e73df;
+      color: white;
+    }
+
+    .completed {
+      background-color: #1cc88a;
+      color: white;
+    }
+
+    .points-badge {
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 30px;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .winner-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #f6c23e;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      z-index: 10;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
+
+    .btn {
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4e73df, #224abe);
+      border: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #858796, #6e707e);
+      border: none;
+    }
+
+    .vs-badge {
+      width: 40px;
+      height: 40px;
+      background: #e74a3b;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      margin: 0 1rem;
+    }
+
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      background-color: #f8f9fc;
+      border-radius: 15px;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      color: #d1d3e2;
+      margin-bottom: 1rem;
+    }
+
+    .round-info {
+      padding: 1rem;
+      background-color: #f8f9fc;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .round-info-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .round-info-icon {
+      margin-right: 0.5rem;
+      color: #4e73df;
+    }
+
+    .battle-number {
+      position: absolute;
+      top: -15px;
+      left: 15px;
+      background: white;
+      border: 2px solid #4e73df;
+      color: #4e73df;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .shark-fight-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e74a3b;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      z-index: 10;
+    }
+
+    .event-badge {
+      margin-right: 3px;
+      margin-bottom: 3px;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+    }
+  </style>
 </head>
 <body>
 <div layout:fragment="content">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Rodada <span th:text="${round.numero}"></span></h1>
+  <!-- Page Header -->
+  <div class="page-header d-flex justify-content-between align-items-center">
     <div>
-      <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}" class="btn btn-secondary">Voltar ao Torneio</a>
+      <h1 class="h3 mb-0">Rodada <span th:text="${round.numero}"></span></h1>
+      <p class="mb-1">Torneio #<span th:text="${round.tournament.tournamentId}"></span></p>
+      <span th:if="${round.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
+      <span th:if="${round.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
+    </div>
+    <div>
+      <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}" class="btn btn-light">
+        <i class="fas fa-arrow-left me-2"></i>Voltar ao Torneio
+      </a>
     </div>
   </div>
 
-  <div class="alert alert-info mb-4">
-    <p>
-      <strong>Status da Rodada:</strong>
-      <span th:if="${round.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary">Em Andamento</span>
-      <span th:if="${round.status.toString() == 'FINALIZADA'}" class="badge bg-success">Finalizada</span>
-    </p>
-    <p>
-      <strong>Torneio:</strong> <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}"
-                                   th:text="'#' + ${round.tournament.tournamentId}"></a>
-    </p>
-    <p>
-      <strong>Número de Batalhas:</strong> <span th:text="${round.battles.size()}"></span>
-    </p>
+  <!-- Round Info -->
+  <div class="round-info">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="round-info-item">
+          <i class="fas fa-trophy round-info-icon"></i>
+          <strong>Torneio:</strong>
+          <a th:href="@{/tournaments/{id}(id=${round.tournament.tournamentId})}" class="ms-2">
+            #<span th:text="${round.tournament.tournamentId}"></span>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="round-info-item">
+          <i class="fas fa-gamepad round-info-icon"></i>
+          <strong>Batalhas:</strong>
+          <span class="ms-2 badge bg-info" th:text="${round.battles.size()}"></span>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="round-info-item">
+          <i class="fas fa-flag-checkered round-info-icon"></i>
+          <strong>Status:</strong>
+          <span th:if="${round.status.toString() == 'EM_ANDAMENTO'}" class="badge bg-primary ms-2">Em Andamento</span>
+          <span th:if="${round.status.toString() == 'FINALIZADA'}" class="badge bg-success ms-2">Finalizada</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <h2 class="mb-3">Batalhas</h2>
+  <h2 class="h4 mb-3">Batalhas da Rodada</h2>
 
+  <!-- Battle Cards -->
   <div class="row">
-    <div class="col-md-6 mb-4" th:each="battle : ${round.battles}">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center"
-             th:classappend="${battle.status.toString() == 'PENDENTE' ? 'bg-warning' : 'bg-success'}">
-          <h5 class="mb-0 text-white">Batalha #<span th:text="${battle.id}"></span></h5>
-          <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-light text-dark">Pendente</span>
-          <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-light text-dark">Finalizada</span>
+    <div class="col-lg-6 mb-4" th:each="battle, battleStat : ${round.battles}">
+      <div class="battle-card position-relative">
+        <div class="battle-number" th:text="${battleStat.index + 1}"></div>
+
+        <div th:if="${battle.sharkFight}" class="shark-fight-badge">
+          <i class="fas fa-bolt me-1"></i>Shark Fight
         </div>
-        <div class="card-body">
-          <div class="row mb-3">
-            <div class="col-6 text-center" th:each="participant : ${battle.participants}">
-              <h6 th:text="${participant.startup.name}"></h6>
-              <div class="badge bg-primary fs-5" th:text="${participant.pontuacaoFinal}"></div>
-              <div th:if="${battle.winner != null && battle.winner.id == participant.startup.id}"
-                   class="badge bg-success mt-2">Vencedor</div>
+
+        <div class="card-header d-flex justify-content-between align-items-center"
+             th:classappend="${battle.status.toString() == 'PENDENTE' ? 'card-header-pending' : 'card-header-completed'}">
+          <h5 class="mb-0">Batalha #<span th:text="${battle.id}"></span></h5>
+          <span th:if="${battle.status.toString() == 'PENDENTE'}" class="badge bg-light text-warning">Pendente</span>
+          <span th:if="${battle.status.toString() == 'FINALIZADA'}" class="badge bg-light text-success">Finalizada</span>
+        </div>
+
+        <div class="card-body p-4">
+          <!-- Startups in battle -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div th:each="participant, participantStat : ${battle.participants}" class="text-center position-relative" style="flex: 1;">
+              <div th:if="${battle.winner != null && battle.winner.id == participant.startup.id}" class="winner-badge">
+                <i class="fas fa-trophy me-1"></i>Vencedor
+              </div>
+
+              <h6 th:text="${participant.startup.name}" class="mb-2"></h6>
+              <div class="points-badge bg-primary text-white mx-auto mb-2" th:text="${participant.pontuacaoFinal}"></div>
+
+              <!-- Display events applied to this startup in this battle -->
+              <div class="d-flex flex-wrap justify-content-center">
+                <span th:if="${participant.pitchConvincente}" class="badge bg-success me-1 mb-1" title="Pitch Convincente">
+                  <i class="fas fa-bullhorn"></i>
+                </span>
+                <span th:if="${participant.produtoComBugs}" class="badge bg-danger me-1 mb-1" title="Produto com Bugs">
+                  <i class="fas fa-bug"></i>
+                </span>
+                <span th:if="${participant.boaTracaoUsuarios}" class="badge bg-primary me-1 mb-1" title="Boa Tração">
+                  <i class="fas fa-users"></i>
+                </span>
+                <span th:if="${participant.investidorIrritado}" class="badge bg-warning me-1 mb-1" title="Investidor Irritado">
+                  <i class="fas fa-angry"></i>
+                </span>
+                <span th:if="${participant.fakeNewsNoPitch}" class="badge bg-dark me-1 mb-1" title="Fake News">
+                  <i class="fas fa-newspaper"></i>
+                </span>
+                <span th:if="${participant.ganhouSharkFight}" class="badge bg-danger me-1 mb-1" title="Vencedor Shark Fight">
+                  <i class="fas fa-bolt"></i>
+                </span>
+              </div>
             </div>
+
+            <div class="vs-badge" th:if="${battleStat.index % 2 == 0}">VS</div>
           </div>
 
           <div class="d-grid">
-            <a th:href="@{/battles/{id}(id=${battle.id})}" class="btn btn-primary">Gerenciar Batalha</a>
+            <a th:href="@{/battles/{id}(id=${battle.id})}" class="btn btn-primary">
+              <i class="fas fa-gamepad me-2"></i>Gerenciar Batalha
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="alert alert-info" th:if="${#lists.isEmpty(round.battles)}">
-    <p>Não há batalhas nesta rodada.</p>
+  <!-- Empty state when no battles -->
+  <div class="empty-state" th:if="${#lists.isEmpty(round.battles)}">
+    <i class="fas fa-gamepad empty-state-icon"></i>
+    <h4>Nenhuma batalha nesta rodada</h4>
+    <p class="text-muted">Não há batalhas disponíveis para esta rodada.</p>
   </div>
 </div>
 </body>

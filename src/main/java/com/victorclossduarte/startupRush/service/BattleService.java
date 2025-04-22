@@ -10,6 +10,7 @@ import com.victorclossduarte.startupRush.repository.StartupBattleRepository;
 import com.victorclossduarte.startupRush.repository.StartupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +31,8 @@ public class BattleService {
         return (List<BattleModel>) battleRepository.findAll();
     }
 
-    public BattleModel getBattleById(long id) {
-        Optional<BattleModel> battle = battleRepository.findById((int)id);
+    public BattleModel getBattleById(int id) {
+        Optional<BattleModel> battle = battleRepository.findById(id);
         if (!battle.isPresent()) {
             throw new RuntimeException("Batalha não encontrada");
         }
@@ -39,10 +40,10 @@ public class BattleService {
     }
 
     public List<BattleModel> getBattlesByRound(RoundModel round) {
-        return round.getBattles();
+        return battleRepository.findByRound(round);
     }
 
-    public StartupBattleModel getParticipation(long battleId, int startupId) {
+    public StartupBattleModel getParticipation(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
         StartupModel startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
@@ -57,7 +58,8 @@ public class BattleService {
 
     // Métodos para aplicar eventos nas batalhas
 
-    public BattleModel applyPitchConvincente(long battleId, int startupId) {
+    @Transactional
+    public BattleModel applyPitchConvincente(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
@@ -83,6 +85,7 @@ public class BattleService {
         return battleRepository.save(battle);
     }
 
+    @Transactional
     public BattleModel applyProdutoComBugs(long battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
@@ -109,6 +112,7 @@ public class BattleService {
         return battleRepository.save(battle);
     }
 
+    @Transactional
     public BattleModel applyBoaTracaoUsuarios(long battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
@@ -135,6 +139,7 @@ public class BattleService {
         return battleRepository.save(battle);
     }
 
+    @Transactional
     public BattleModel applyInvestidorIrritado(long battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
@@ -161,6 +166,7 @@ public class BattleService {
         return battleRepository.save(battle);
     }
 
+    @Transactional
     public BattleModel applyFakeNewsNoPitch(long battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
@@ -187,8 +193,15 @@ public class BattleService {
         return battleRepository.save(battle);
     }
 
+    @Transactional
     public BattleModel finalizeBattle(long battleId) {
-        BattleModel battle = getBattleById(battleId);
+        // Recuperando a batalha pelo ID Long, não int
+        Optional<BattleModel> battleOpt = battleRepository.findById(battleId);
+        if (!battleOpt.isPresent()) {
+            throw new RuntimeException("Batalha não encontrada");
+        }
+
+        BattleModel battle = battleOpt.get();
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
             throw new RuntimeException("Esta batalha já foi finalizada");
@@ -198,12 +211,17 @@ public class BattleService {
             throw new RuntimeException("Uma batalha deve ter exatamente 2 startups");
         }
 
+        // Atualizando as pontuações finais nas participações
+        for (StartupBattleModel participant : battle.getParticipants()) {
+            participant.setPontuacaoFinal(participant.getStartup().getPoints());
+            startupBattleRepository.save(participant);
+        }
+
         StartupModel startup1 = battle.getParticipants().get(0).getStartup();
         StartupModel startup2 = battle.getParticipants().get(1).getStartup();
 
+        // Lógica para determinar o vencedor
         StartupModel winner;
-
-        // Verifica se há vencedor claro ou se precisa de SharkFight
         if (startup1.getPoints() > startup2.getPoints()) {
             winner = startup1;
             battle.setSharkFight(false);
@@ -216,17 +234,20 @@ public class BattleService {
             winner = executeSharkFight(battle, startup1, startup2);
         }
 
-        // Atribui pontos de vitória
+        // Atribuindo pontos ao vencedor
         winner.setPoints(winner.getPoints() + 30);
         winner.setWins(winner.getWins() + 1);
+        startupRepository.save(winner);
 
-        // Atualiza a batalha
+        // Atualizando a batalha
         battle.setWinner(winner);
         battle.setStatus(BattleStatus.FINALIZADA);
 
-        // Salva as alterações
+        // Salvando todas as entidades
         startupRepository.save(startup1);
         startupRepository.save(startup2);
+
+        // Salvando a batalha após ter atribuído todos os valores
         return battleRepository.save(battle);
     }
 
@@ -235,12 +256,21 @@ public class BattleService {
         boolean isStartup1Winner = random.nextBoolean();
 
         StartupModel winner = isStartup1Winner ? startup1 : startup2;
-        StartupBattleModel winnerParticipation = battle.getParticipants().stream()
-                .filter(p -> p.getStartup().getId() == winner.getId())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Erro ao encontrar participação da startup vencedora"));
 
-        // Adiciona 2 pontos ao vencedor do SharkFight
+        // Encontra a participação do vencedor
+        StartupBattleModel winnerParticipation = null;
+        for (StartupBattleModel participation : battle.getParticipants()) {
+            if (participation.getStartup().getId() == winner.getId()) {
+                winnerParticipation = participation;
+                break;
+            }
+        }
+
+        if (winnerParticipation == null) {
+            throw new RuntimeException("Erro ao encontrar participação da startup vencedora");
+        }
+
+        // Adiciona 2 pontos ao vencedor
         winner.setPoints(winner.getPoints() + 2);
         winner.setSharkFights(winner.getSharkFights() + 1);
 
@@ -248,6 +278,7 @@ public class BattleService {
         winnerParticipation.setPontuacaoFinal(winner.getPoints());
 
         startupBattleRepository.save(winnerParticipation);
+        startupRepository.save(winner);
 
         return winner;
     }

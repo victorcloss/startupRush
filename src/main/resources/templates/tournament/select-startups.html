@@ -3,77 +3,307 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Gerenciar Startups do Torneio</title>
+    <title>Seleção de Startups</title>
+    <style>
+        .page-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .counter-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+
+        .startup-card {
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s ease;
+            border: 1px solid #e3e6f0;
+            background: white;
+        }
+
+        .startup-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .startup-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .startup-slogan {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            border-bottom: none;
+            padding: 1.25rem;
+        }
+
+        .selection-status {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            border: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1cc88a, #13855c);
+            border: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74a3b, #be2617);
+            border: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            background-color: #f8f9fc;
+            border-radius: 10px;
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            color: #d1d3e2;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            color: #5a5c69;
+            display: flex;
+            align-items: center;
+        }
+
+        .selection-complete {
+            background-color: #1cc88a;
+            color: white;
+        }
+
+        .footer-actions {
+            background-color: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 15px 15px;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Gerenciar Startups - Torneio #<span th:text="${tournament.tournamentId}"></span></h1>
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
         <div>
-            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-secondary">Voltar</a>
-            <form th:if="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0}"
-                  th:action="@{/tournaments/{id}/start(id=${tournament.tournamentId})}"
-                  method="post" style="display: inline;">
-                <button type="submit" class="btn btn-success">Iniciar Torneio</button>
+            <h1 class="h3 mb-2">Seleção de Startups</h1>
+            <p class="mb-0">Torneio #<span th:text="${tournament.tournamentId}"></span></p>
+        </div>
+        <div>
+            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-2"></i>Voltar ao Torneio
+            </a>
+        </div>
+    </div>
+
+    <!-- Selection Status -->
+    <div th:class="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0 ?
+                   'selection-status selection-complete' : 'selection-status bg-light'}">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="mb-0" th:text="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0 ?
+                                     'Seleção Completa! ✓' : 'Progresso da Seleção'}"></h5>
+            <span class="badge bg-white text-primary" th:text="${tournament.startups.size() + ' selecionadas'}"></span>
+        </div>
+
+        <div class="progress mb-2">
+            <div class="progress-bar bg-success" role="progressbar"
+                 th:style="'width: ' + (${tournament.startups.size() >= 4 ? 100 : (tournament.startups.size() * 25)}) + '%'"
+                 th:attr="aria-valuenow=${tournament.startups.size() >= 4 ? 100 : (tournament.startups.size() * 25)}"
+                 aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        <div class="d-flex justify-content-between small">
+            <span>0</span>
+            <span>4+ (mínimo necessário)</span>
+        </div>
+
+        <div class="mt-3" th:if="${tournament.startups.size() < 4}">
+            <div class="alert alert-info py-2 mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                Selecione pelo menos 4 startups para iniciar o torneio
+            </div>
+        </div>
+
+        <div class="mt-3" th:if="${tournament.startups.size() > 0 && tournament.startups.size() % 2 != 0}">
+            <div class="alert alert-warning py-2 mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                O número de startups deve ser par
+            </div>
+        </div>
+
+        <div class="mt-3" th:if="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0}">
+            <form th:action="@{/tournaments/{id}/start(id=${tournament.tournamentId})}" method="post">
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="fas fa-play me-2"></i>Iniciar Torneio com <span th:text="${tournament.startups.size()}"></span> Startups
+                </button>
             </form>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Startups Selecionadas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-info" th:if="${#sets.isEmpty(tournament.startups)}">
-                        <p>Nenhuma startup selecionada para este torneio.</p>
-                    </div>
-                    <div class="list-group" th:if="${not #sets.isEmpty(tournament.startups)}">
-                        <div class="list-group-item d-flex justify-content-between align-items-center"
-                             th:each="startup : ${tournament.startups}">
-                            <span th:text="${startup.name}"></span>
-                            <a th:href="@{/tournaments/{tournamentId}/startups/{startupId}/remove(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Tem certeza que deseja remover esta startup do torneio?')">
-                                Remover
-                            </a>
+        <!-- Selected Startups -->
+        <div class="col-lg-6">
+            <div class="section-title">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                Startups Selecionadas
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" th:if="${#sets.isEmpty(tournament.startups)}">
+                <i class="fas fa-rocket empty-state-icon"></i>
+                <h5>Nenhuma startup selecionada</h5>
+                <p class="text-muted">Adicione startups da lista à direita para iniciar o torneio.</p>
+            </div>
+
+            <!-- Startup Cards -->
+            <div th:if="${not #sets.isEmpty(tournament.startups)}">
+                <div class="startup-card d-flex justify-content-between align-items-center"
+                     th:each="startup, stat : ${tournament.startups}">
+                    <div class="d-flex align-items-center">
+                        <div class="counter-badge bg-success text-white">
+                            <span th:text="${stat.count}"></span>
+                        </div>
+                        <div>
+                            <div class="startup-name" th:text="${startup.name}"></div>
+                            <div class="startup-slogan" th:text="${startup.slogan}"></div>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <p><strong>Total de startups:</strong> <span th:text="${tournament.startups.size()}"></span></p>
-                    <div class="alert alert-warning" th:if="${tournament.startups.size() > 0 && tournament.startups.size() % 2 != 0}">
-                        <p>O número de startups deve ser par para iniciar o torneio.</p>
-                    </div>
-                    <div class="alert alert-warning" th:if="${tournament.startups.size() < 4}">
-                        <p>É necessário ao menos 4 startups para iniciar o torneio.</p>
-                    </div>
+                    <a th:href="@{/tournaments/{tournamentId}/startups/{startupId}/remove(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Tem certeza que deseja remover esta startup do torneio?')">
+                        <i class="fas fa-times"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Startups Disponíveis</h5>
+        <!-- Available Startups -->
+        <div class="col-lg-6">
+            <div class="section-title">
+                <i class="fas fa-rocket text-primary me-2"></i>
+                Startups Disponíveis
+            </div>
+
+            <!-- Verifica se há startups disponíveis e não-selecionadas -->
+            <div th:with="hasAvailableNotSelected = ${false}" th:remove="tag">
+                <div th:each="startup : ${availableStartups}" th:remove="tag">
+                    <div th:if="${!tournament.startups.contains(startup)}" th:with="hasAvailableNotSelected = ${true}" th:remove="tag"></div>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info" th:if="${#lists.isEmpty(availableStartups)}">
-                        <p>Nenhuma startup disponível. <a href="/startups/new">Cadastre uma nova startup!</a></p>
-                    </div>
-                    <div class="list-group" th:if="${not #lists.isEmpty(availableStartups)}">
-                        <div class="list-group-item d-flex justify-content-between align-items-center"
-                             th:each="startup : ${availableStartups}"
-                             th:if="${not tournament.startups.contains(startup)}">
-                            <span th:text="${startup.name}"></span>
-                            <form th:action="@{/tournaments/{tournamentId}/startups/{startupId}(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
-                                  method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-primary btn-sm">Adicionar</button>
-                            </form>
+            </div>
+
+            <!-- Empty State - Nenhuma startup disponível ou todas já adicionadas -->
+            <div class="empty-state" th:if="${#lists.isEmpty(availableStartups) || hasAvailableNotSelected == false}">
+                <i class="fas fa-search empty-state-icon"></i>
+                <h5>Nenhuma startup disponível</h5>
+                <p class="text-muted">Todas as startups já foram adicionadas ou nenhuma startup foi cadastrada.</p>
+                <a href="/startups/new" class="btn btn-primary mt-2">
+                    <i class="fas fa-plus-circle me-2"></i>Cadastrar Nova Startup
+                </a>
+            </div>
+
+            <!-- Startup Cards -->
+            <div th:if="${not #lists.isEmpty(availableStartups)}">
+                <div class="startup-card d-flex justify-content-between align-items-center"
+                     th:each="startup : ${availableStartups}"
+                     th:if="${!tournament.startups.contains(startup)}">
+                    <div class="d-flex align-items-center">
+                        <div class="counter-badge bg-primary text-white">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div>
+                            <div class="startup-name" th:text="${startup.name}"></div>
+                            <div class="startup-slogan" th:text="${startup.slogan}"></div>
                         </div>
                     </div>
+                    <form th:action="@{/tournaments/{tournamentId}/startups/{startupId}(tournamentId=${tournament.tournamentId}, startupId=${startup.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </form>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="card">
+        <div class="footer-actions">
+            <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar ao Torneio
+            </a>
+
+            <div th:if="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0}">
+                <form th:action="@{/tournaments/{id}/start(id=${tournament.tournamentId})}" method="post">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-play me-2"></i>Iniciar Torneio
+                    </button>
+                </form>
+            </div>
+
+            <div th:if="${tournament.startups.size() < 4 || tournament.startups.size() % 2 != 0}">
+                <button disabled class="btn btn-secondary">
+                    <i class="fas fa-play me-2"></i>Iniciar Torneio
+                </button>
             </div>
         </div>
     </div>
