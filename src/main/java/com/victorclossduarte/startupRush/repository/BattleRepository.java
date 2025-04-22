@@ -10,12 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BattleRepository extends JpaRepository<BattleModel, Long> {
-
+public interface BattleRepository extends JpaRepository<BattleModel, Integer> {
     List<BattleModel> findByRound(RoundModel round);
-
     List<BattleModel> findByStatus(BattleStatus status);
-
     Optional<BattleModel> findById(int id);
-
 }

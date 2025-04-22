@@ -32,11 +32,8 @@ public class BattleService {
     }
 
     public BattleModel getBattleById(int id) {
-        Optional<BattleModel> battle = battleRepository.findById(id);
-        if (!battle.isPresent()) {
-            throw new RuntimeException("Batalha não encontrada");
-        }
-        return battle.get();
+        return battleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Batalha não encontrada"));
     }
 
     public List<BattleModel> getBattlesByRound(RoundModel round) {
@@ -67,7 +64,9 @@ public class BattleService {
         }
 
         StartupBattleModel participation = getParticipation(battleId, startupId);
-
+        if (participation == null) {
+            throw new RuntimeException("Participação não encontrada");
+        }
         if (participation.getPitchConvincente()) {
             throw new RuntimeException("Pitch convincente já foi aplicado para esta startup");
         }
@@ -86,7 +85,7 @@ public class BattleService {
     }
 
     @Transactional
-    public BattleModel applyProdutoComBugs(long battleId, int startupId) {
+    public BattleModel applyProdutoComBugs(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
@@ -113,7 +112,7 @@ public class BattleService {
     }
 
     @Transactional
-    public BattleModel applyBoaTracaoUsuarios(long battleId, int startupId) {
+    public BattleModel applyBoaTracaoUsuarios(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
@@ -140,7 +139,7 @@ public class BattleService {
     }
 
     @Transactional
-    public BattleModel applyInvestidorIrritado(long battleId, int startupId) {
+    public BattleModel applyInvestidorIrritado(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
@@ -167,7 +166,7 @@ public class BattleService {
     }
 
     @Transactional
-    public BattleModel applyFakeNewsNoPitch(long battleId, int startupId) {
+    public BattleModel applyFakeNewsNoPitch(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
 
         if (battle.getStatus() == BattleStatus.FINALIZADA) {
@@ -194,7 +193,7 @@ public class BattleService {
     }
 
     @Transactional
-    public BattleModel finalizeBattle(long battleId) {
+    public BattleModel finalizeBattle(int battleId) {
         // Recuperando a batalha pelo ID Long, não int
         Optional<BattleModel> battleOpt = battleRepository.findById(battleId);
         if (!battleOpt.isPresent()) {
