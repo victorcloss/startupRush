@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <title>Análise de Mercado</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .market-card {
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .market-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+    .market-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0;
+    }
+    .market-label {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    .sector-badge {
+      padding: 8px 15px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .funding-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 15px;
+    }
+    .funding-card::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 80px;
+      height: 80px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+    .rating-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .rating-bar {
+      flex-grow: 1;
+      height: 8px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+      margin: 0 15px;
+      overflow: hidden;
+    }
+    .rating-value {
+      height: 100%;
+      border-radius: 4px;
+    }
+    .rating-label {
+      min-width: 100px;
+      font-weight: 600;
+    }
+    .rating-number {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3">Análise de Mercado</h1>
+      <p class="text-muted">Startup: <span th:text="${startup.name}"></span></p>
+    </div>
+    <div>
+      <a th:href="@{/startups/{id}(id=${startup.id})}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Voltar
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Métricas chave -->
+    <div class="col-md-4">
+      <div class="market-card bg-primary text-white">
+        <h5 class="mb-3">Taxa de Crescimento</h5>
+        <p class="market-value" th:text="${marketData.growthRate + '%'}">0%</p>
+        <p class="market-label">Crescimento mensal estimado</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="market-card bg-success text-white">
+        <h5 class="mb-3">Taxa de Adoção</h5>
+        <p class="market-value" th:text="${marketData.adoptionRate + '%'}">0%</p>
+        <p class="market-label">Aceitação no mercado-alvo</p>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="market-card bg-warning text-white">
+        <h5 class="mb-3">Avaliação Estimada</h5>
+        <p class="market-value" th:text="${'$' + #numbers.formatInteger(marketData.valuation, 0, 'COMMA')}">$0</p>
+        <p class="market-label">Valor de mercado potencial</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-8">
+      <!-- Gráfico de crescimento -->
+      <div class="card h-100">
+        <div class="card-header">
+          <h5 class="mb-0">Projeção de Crescimento (6 meses)</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="growthChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <!-- Próxima rodada de investimento -->
+      <div class="card h-100 funding-card bg-dark text-white">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <i class="fas fa-chart-line fa-3x"></i>
+          </div>
+          <h5>Próxima Rodada Recomendada</h5>
+          <div class="display-4 my-4" th:text="${marketData.fundingRound}">Seed</div>
+          <p class="text-muted mb-0">Baseado no desempenho atual e potencial de mercado</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <!-- Matriz de posicionamento -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Matriz de Mercado</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="marketMatrix" height="240"></canvas>
+        </div>
+        <div class="card-footer text-muted">
+          <small>Análise da posição da startup em relação ao tamanho e competitividade do mercado</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <!-- Matriz de investimento -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Matriz de Investimento</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="investmentMatrix" height="240"></canvas>
+        </div>
+        <div class="card-footer text-muted">
+          <small>Relação entre o risco de investimento e o potencial de retorno</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <!-- Setores de mercado -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Setores de Mercado</h5>
+        </div>
+        <div class="card-body">
+          <div th:each="sector : ${marketData.sectors}" class="sector-badge bg-info text-white" th:text="${sector}">Setor</div>
+          <div th:if="${marketData.sectors.empty}" class="alert alert-info">
+            Nenhum setor de mercado identificado.
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <small>Segmentos de mercado com maior potencial de sucesso para esta startup</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <!-- Métricas de negócio -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Métricas de Negócio</h5>
+        </div>
+        <div class="card-body">
+          <div class="rating-item">
+            <div class="rating-label">Retenção</div>
+            <div class="rating-bar">
+              <div class="rating-value bg-success" th:style="'width:' + ${marketData.retentionRate} + '%'"></div>
+            </div>
+            <div class="rating-number" th:text="${marketData.retentionRate + '%'}">0%</div>
+          </div>
+          <div class="rating-item">
+            <div class="rating-label">CAC</div>
+            <div class="rating-bar">
+              <div class="rating-value bg-warning" th:style="'width:' + ${marketData.cac} + '%'"></div>
+            </div>
+            <div class="rating-number">$<span th:text="${marketData.cac}">0</span></div>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <small>CAC: Custo de Aquisição de Cliente (valores menores são melhores)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    // Dados do gráfico de crescimento
+    const growthData = /*[[${marketData.growthData}]]*/ [];
+
+    // Criar gráfico de crescimento
+    const ctxGrowth = document.getElementById('growthChart').getContext('2d');
+    new Chart(ctxGrowth, {
+      type: 'line',
+      data: {
+        labels: ['Mês 1', 'Mês 2', 'Mês 3', 'Mês 4', 'Mês 5', 'Mês 6'],
+        datasets: [{
+          label: 'Usuários (em milhares)',
+          data: growthData,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'top'
+          }
+        }
+      }
+    });
+
+    // Dados para a matriz de mercado
+    const marketSize = /*[[${marketData.marketSize}]]*/ 50;
+    const marketCompetitiveness = /*[[${marketData.marketCompetitiveness}]]*/ 50;
+
+    // Criar matriz de mercado
+    const ctxMarket = document.getElementById('marketMatrix').getContext('2d');
+    new Chart(ctxMarket, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: [[${startup.name}]],
+          data: [{
+            x: marketSize,
+            y: marketCompetitiveness
+          }],
+          backgroundColor: 'rgba(54, 162, 235, 0.8)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Tamanho do Mercado (%)'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Competitividade (%)'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+    // Dados para a matriz de investimento
+    const investmentRisk = /*[[${marketData.investmentRisk}]]*/ 50;
+    const investmentReturn = /*[[${marketData.investmentReturn}]]*/ 50;
+
+    // Criar matriz de investimento
+    const ctxInvestment = document.getElementById('investmentMatrix').getContext('2d');
+    new Chart(ctxInvestment, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: [[${startup.name}]],
+          data: [{
+            x: investmentRisk,
+            y: investmentReturn
+          }],
+          backgroundColor: 'rgba(255, 99, 132, 0.8)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Risco de Investimento (%)'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Potencial de Retorno (%)'
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+  </script>
+</div>
+</body>
+</html>

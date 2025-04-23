@@ -166,11 +166,18 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/market-analysis') ? 'active' : ''}" href="/startups">
+                <i class="fas fa-chart-line"></i>
+                <span>Análise de Mercado</span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" th:classappend="${#httpServletRequest.getRequestURI().startsWith('/tournaments') ? 'active' : ''}" href="/tournaments">
                 <i class="fas fa-trophy"></i>
                 <span>Torneios</span>
             </a>
         </li>
+
     </ul>
     <hr class="sidebar-divider">
 </div>
