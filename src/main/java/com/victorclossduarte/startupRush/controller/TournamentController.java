@@ -1,5 +1,6 @@
 package com.victorclossduarte.startupRush.controller;
 
+import com.victorclossduarte.startupRush.enums.TournamentStatus;
 import com.victorclossduarte.startupRush.model.RoundModel;
 import com.victorclossduarte.startupRush.model.TournamentModel;
 import com.victorclossduarte.startupRush.service.StartupService;
@@ -23,10 +24,27 @@ public class TournamentController {
 
     @GetMapping
     public String getAllTournaments(Model model) {
-        model.addAttribute("tournaments", tournamentService.getAllTournaments());
+        List<TournamentModel> tournaments = tournamentService.getAllTournaments();
+        model.addAttribute("tournaments", tournaments);
+
+        long activeCount = tournaments.stream()
+                .filter(t -> t.getStatus() == TournamentStatus.EM_ANDAMENTO)
+                .count();
+
+        long finishedCount = tournaments.stream()
+                .filter(t -> t.getStatus() == TournamentStatus.FINALIZADO)
+                .count();
+
+        long notStartedCount = tournaments.stream()
+                .filter(t -> t.getStatus() == TournamentStatus.NAO_INICIADO)
+                .count();
+
+        model.addAttribute("activeCount", activeCount);
+        model.addAttribute("finishedCount", finishedCount);
+        model.addAttribute("notStartedCount", notStartedCount);
+
         return "tournament/list";
     }
-
     @GetMapping("/{id}")
     public String getTournamentDetails(@PathVariable int id, Model model) {
         TournamentModel tournament = tournamentService.getTournamentById(id);

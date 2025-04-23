@@ -65,20 +65,18 @@ public class BattleModel {
     public StartupModel verifyWinner(StartupModel startupX, StartupModel startupY) {
         if (startupX.getPoints() > startupY.getPoints()) {
             this.winner = startupX;
+            this.sharkFight = false;
         } else if (startupX.getPoints() < startupY.getPoints()) {
             this.winner = startupY;
+            this.sharkFight = false;
         } else {
+            this.sharkFight = true;
             this.winner = sharkFight(startupX, startupY);
         }
         return this.winner;
     }
 
     public StartupModel sharkFight(StartupModel startupX, StartupModel startupY) {
-        // Implementação da lógica SharkFight usando random
-        // "Se houver empate ao final da batalha, o sistema automaticamente realiza uma Shark Fight, uma
-        // rodada relâmpago onde uma startup recebe aleatoriamente +2 pontos. O novo placar decide a
-        // vencedora da disputa."
-
         this.sharkFight = true;
 
         Random random = new Random();

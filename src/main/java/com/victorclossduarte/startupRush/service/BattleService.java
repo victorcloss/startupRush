@@ -273,43 +273,34 @@ public class BattleService {
     }
 
     private StartupModel executeSharkFight(BattleModel battle, StartupModel startup1, StartupModel startup2) {
-        try {
-            System.out.println("Executando SharkFight entre " + startup1.getName() + " e " + startup2.getName());
+        Random random = new Random();
+        boolean isStartup1Winner = random.nextBoolean();
 
-            Random random = new Random();
-            boolean isStartup1Winner = random.nextBoolean();
+        StartupModel winner = isStartup1Winner ? startup1 : startup2;
 
-            StartupModel winner = isStartup1Winner ? startup1 : startup2;
-            System.out.println("Vencedor do SharkFight: " + winner.getName());
-
-            // Encontra a participação do vencedor
-            StartupBattleModel winnerParticipation = null;
-            for (StartupBattleModel participation : battle.getParticipants()) {
-                if (participation.getStartup().getId() == winner.getId()) {
-                    winnerParticipation = participation;
-                    break;
-                }
+        // Encontra a participação do vencedor
+        StartupBattleModel winnerParticipation = null;
+        for (StartupBattleModel participation : battle.getParticipants()) {
+            if (participation.getStartup().getId() == winner.getId()) {
+                winnerParticipation = participation;
+                break;
             }
-
-            if (winnerParticipation == null) {
-                throw new RuntimeException("Erro ao encontrar participação da startup vencedora");
-            }
-
-            // Adiciona 2 pontos ao vencedor
-            winner.setPoints(winner.getPoints() + 2);
-            winner.setSharkFights(winner.getSharkFights() + 1);
-
-            winnerParticipation.setGanhouSharkFight(true);
-            winnerParticipation.setPontuacaoFinal(winner.getPoints());
-
-            startupBattleRepository.save(winnerParticipation);
-            startupRepository.save(winner);
-
-            return winner;
-        } catch (Exception e) {
-            System.out.println("ERRO no SharkFight: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
         }
+
+        if (winnerParticipation == null) {
+            throw new RuntimeException("Erro ao encontrar participação da startup vencedora");
+        }
+
+        // Adiciona 2 pontos ao vencedor
+        winner.setPoints(winner.getPoints() + 2);
+        winner.setSharkFights(winner.getSharkFights() + 1);
+
+        winnerParticipation.setGanhouSharkFight(true);
+        winnerParticipation.setPontuacaoFinal(winner.getPoints());
+
+        startupBattleRepository.save(winnerParticipation);
+        startupRepository.save(winner);
+
+        return winner;
     }
 }

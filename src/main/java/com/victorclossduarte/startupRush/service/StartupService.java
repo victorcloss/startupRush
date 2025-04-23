@@ -23,11 +23,8 @@ public class StartupService {
     }
 
     public StartupModel getStartupById(int id) {
-        Optional<StartupModel> result = repository.findById(id);
-        if(result.isPresent()){
-            return result.get();
-        }
-        return new StartupModel();
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Startup não encontrada com ID: " + id));
     }
 
     public StartupModel createStartup(StartupModel startup) {
