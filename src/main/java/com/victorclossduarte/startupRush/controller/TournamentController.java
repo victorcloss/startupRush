@@ -2,6 +2,7 @@ package com.victorclossduarte.startupRush.controller;
 
 import com.victorclossduarte.startupRush.enums.TournamentStatus;
 import com.victorclossduarte.startupRush.model.RoundModel;
+import com.victorclossduarte.startupRush.model.StartupModel;
 import com.victorclossduarte.startupRush.model.TournamentModel;
 import com.victorclossduarte.startupRush.service.StartupService;
 import com.victorclossduarte.startupRush.service.TournamentService;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -45,12 +47,15 @@ public class TournamentController {
 
         return "tournament/list";
     }
+
     @GetMapping("/{id}")
     public String getTournamentDetails(@PathVariable int id, Model model) {
         TournamentModel tournament = tournamentService.getTournamentById(id);
+        List<StartupModel> sortedStartups = new ArrayList<>(tournament.getStartups());
+        sortedStartups.sort((s1, s2) -> Integer.compare(s2.getPoints(), s1.getPoints()));
         model.addAttribute("tournament", tournament);
+        model.addAttribute("sortedStartups", sortedStartups);
 
-        // Adiciona as rodadas do torneio ao modelo
         List<RoundModel> rounds = tournamentService.getTournamentRounds(id);
         model.addAttribute("rounds", rounds);
 
@@ -130,7 +135,7 @@ public class TournamentController {
             }
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao avançar rodada: " + e.getMessage());
-            e.printStackTrace(); // Log completo do erro para debugging
+            e.printStackTrace();
         }
         return "redirect:/tournaments/" + id;
     }

@@ -142,7 +142,6 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <!-- Page Header -->
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
             <h1 class="h3 mb-2">Seleção de Startups</h1>
@@ -154,8 +153,6 @@
             </a>
         </div>
     </div>
-
-    <!-- Selection Status -->
     <div th:class="${tournament.startups.size() >= 4 && tournament.startups.size() % 2 == 0 ?
                    'selection-status selection-complete' : 'selection-status bg-light'}">
         <div class="d-flex align-items-center justify-content-between mb-3">
@@ -200,14 +197,12 @@
     </div>
 
     <div class="row">
-        <!-- Selected Startups -->
         <div class="col-lg-6">
             <div class="section-title">
                 <i class="fas fa-check-circle text-success me-2"></i>
                 Startups Selecionadas
             </div>
 
-            <!-- Empty State -->
             <div class="empty-state" th:if="${#sets.isEmpty(tournament.startups)}">
                 <i class="fas fa-rocket empty-state-icon"></i>
                 <h5>Nenhuma startup selecionada</h5>
@@ -236,21 +231,18 @@
             </div>
         </div>
 
-        <!-- Available Startups -->
         <div class="col-lg-6">
             <div class="section-title">
                 <i class="fas fa-rocket text-primary me-2"></i>
                 Startups Disponíveis
             </div>
 
-            <!-- Verifica se há startups disponíveis e não-selecionadas -->
             <div th:with="hasAvailableNotSelected = ${false}" th:remove="tag">
                 <div th:each="startup : ${availableStartups}" th:remove="tag">
                     <div th:if="${!tournament.startups.contains(startup)}" th:with="hasAvailableNotSelected = ${true}" th:remove="tag"></div>
                 </div>
             </div>
 
-            <!-- Empty State - Nenhuma startup disponível ou todas já adicionadas -->
             <div class="empty-state" th:if="${#lists.isEmpty(availableStartups) || hasAvailableNotSelected == false}">
                 <i class="fas fa-search empty-state-icon"></i>
                 <h5>Nenhuma startup disponível</h5>
@@ -260,7 +252,6 @@
                 </a>
             </div>
 
-            <!-- Startup Cards -->
             <div th:if="${not #lists.isEmpty(availableStartups)}">
                 <div class="startup-card d-flex justify-content-between align-items-center"
                      th:each="startup : ${availableStartups}"
@@ -285,7 +276,6 @@
         </div>
     </div>
 
-    <!-- Page Footer -->
     <div class="card">
         <div class="footer-actions">
             <a th:href="@{/tournaments/{id}(id=${tournament.tournamentId})}" class="btn btn-secondary">

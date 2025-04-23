@@ -11,6 +11,5 @@ import java.util.Optional;
 public interface StartupRepository extends CrudRepository<StartupModel,Integer> {
 
     Optional<StartupModel> findByName(String name);
-
     List<StartupModel> findByPointsGreaterThan(int points);
 }

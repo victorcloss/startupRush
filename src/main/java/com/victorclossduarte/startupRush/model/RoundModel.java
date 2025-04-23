@@ -19,7 +19,7 @@ public class RoundModel {
     private Integer numero;
 
     @Enumerated(EnumType.STRING)
-    private RoundStatus status = RoundStatus.EM_ANDAMENTO; // EM_ANDAMENTO, FINALIZADA
+    private RoundStatus status = RoundStatus.EM_ANDAMENTO;
 
     // muitas rodadas para um torneio
     @ManyToOne

@@ -28,7 +28,6 @@ public class TournamentModel {
     private int currentRound = 0;
 
     // registro startups no torneio
-    // Importante: usar EAGER para garantir que os dados sejam carregados
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "tournament_startup",
@@ -43,7 +42,6 @@ public class TournamentModel {
     @OneToOne
     private StartupModel champion;
 
-    // Métodos para ajudar no gerenciamento da relação com startups
     public void addStartup(StartupModel startup) {
         this.startups.add(startup);
     }

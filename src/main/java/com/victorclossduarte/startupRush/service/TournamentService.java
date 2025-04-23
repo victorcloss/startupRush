@@ -55,15 +55,11 @@ public class TournamentService {
         StartupModel startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
 
-        // Verificar se a startup já está no torneio
         if (tournament.getStartups().contains(startup)) {
             throw new RuntimeException("Startup já está registrada neste torneio");
         }
 
-        // Adiciona a startup ao torneio
         tournament.getStartups().add(startup);
-
-        // Salva o torneio com a nova startup
         return tournamentRepository.save(tournament);
     }
 
@@ -78,7 +74,6 @@ public class TournamentService {
         StartupModel startup = startupRepository.findById(startupId)
                 .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
 
-        // Remove a startup do torneio
         tournament.getStartups().remove(startup);
         return tournamentRepository.save(tournament);
     }
@@ -96,17 +91,13 @@ public class TournamentService {
             throw new RuntimeException("O torneio precisa de pelo menos 4 startups para iniciar");
         }
 
-        // Verifica se o número de startups é uma potência de 2 (4, 8, 16...)
         if ((startupCount & (startupCount - 1)) != 0) {
-            throw new RuntimeException("O número de startups deve ser uma potência de 2 (4, 8, 16...)");
+            throw new RuntimeException("O número de startups deve ser uma potência de 2 (4, 6, 8)");
         }
-
-        // Inicia o torneio
         tournament.setStatus(TournamentStatus.EM_ANDAMENTO);
         tournament.setCurrentRound(1);
         tournament = tournamentRepository.save(tournament);
 
-        // Cria a primeira rodada
         createNewRound(tournament);
 
         return tournament;
@@ -122,13 +113,11 @@ public class TournamentService {
         round.setTournament(tournament);
         round = roundRepository.save(round);
 
-        // Se for a primeira rodada, usa todas as startups do torneio
         if (roundNumber == 1) {
             List<StartupModel> startups = new ArrayList<>(tournament.getStartups());
-            Collections.shuffle(startups); // Embaralha para criar confrontos aleatórios
+            Collections.shuffle(startups);
             createBattlesForRound(round, startups);
         } else {
-            // Para as próximas rodadas, usa os vencedores da rodada anterior
             RoundModel previousRound = roundRepository.findByTournamentAndNumero(tournament, roundNumber - 1)
                     .get(0);
 
@@ -155,11 +144,9 @@ public class TournamentService {
             battle.setStatus(BattleStatus.PENDENTE);
             battle = battleRepository.save(battle);
 
-            // Adiciona as duas startups à batalha
             addStartupToBattle(battle, startups.get(i * 2));
             addStartupToBattle(battle, startups.get(i * 2 + 1));
 
-            // Adiciona a batalha à lista de batalhas da rodada
             round.getBattles().add(battle);
         }
 
@@ -194,38 +181,31 @@ public class TournamentService {
 
         RoundModel currentRound = currentRoundList.get(0);
 
-        // Verifica se todas as batalhas da rodada atual foram finalizadas
         for (BattleModel battle : currentRound.getBattles()) {
             if (battle.getStatus() == BattleStatus.PENDENTE) {
                 throw new RuntimeException("Ainda existem batalhas pendentes na rodada atual");
             }
 
-            // Garantir que cada batalha tem um vencedor definido
             if (battle.getWinner() == null) {
                 throw new RuntimeException("Batalha #" + battle.getId() + " não tem um vencedor definido");
             }
         }
 
-        // Marca a rodada atual como finalizada
         currentRound.setStatus(RoundStatus.FINALIZADA);
         roundRepository.save(currentRound);
 
-        // Verifica se é a última rodada (apenas uma batalha)
+
         if (currentRound.getBattles().size() == 1) {
-            // Finaliza o torneio
             tournament.setStatus(TournamentStatus.FINALIZADO);
 
-            // Define o campeão do torneio como o vencedor da última batalha
             BattleModel finalBattle = currentRound.getBattles().get(0);
             if (finalBattle.getWinner() != null) {
                 StartupModel champion = finalBattle.getWinner();
                 tournament.setChampion(champion);
 
-                // Garantir que as mudanças sejam persistidas
                 startupRepository.save(champion);
                 tournament = tournamentRepository.save(tournament);
 
-                // Log para debug
                 System.out.println("Torneio finalizado. Campeão: " + champion.getName() + " (ID: " + champion.getId() + ")");
             } else {
                 throw new RuntimeException("A batalha final não tem um vencedor definido");
@@ -234,11 +214,10 @@ public class TournamentService {
             return tournament;
         }
 
-        // Avança para a próxima rodada
+
         tournament.setCurrentRound(currentRoundNumber + 1);
         tournament = tournamentRepository.save(tournament);
 
-        // Cria a nova rodada
         createNewRound(tournament);
 
         return tournament;

@@ -213,7 +213,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr th:each="startup : ${tournament.startups}"
+              <tr th:each="startup : ${sortedStartups}"
                   th:class="${tournament.champion != null && tournament.champion.id == startup.id ? 'table-warning' : ''}">
                 <td>
                   <span th:text="${startup.name}"></span>

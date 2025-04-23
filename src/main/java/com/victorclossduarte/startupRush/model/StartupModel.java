@@ -43,7 +43,7 @@ public class StartupModel {
     private int wins = 0;
 
     // muitas startups participam de muitos torneios
-    // Importante: usar EAGER para garantir que os dados sejam carregados
+    // usar EAGER para garantir que os dados sejam carregados
     @ManyToMany(mappedBy = "startups", fetch = FetchType.EAGER)
     private Set<TournamentModel> tournaments = new HashSet<>();
 
@@ -51,7 +51,6 @@ public class StartupModel {
     @OneToMany(mappedBy = "startup")
     private List<StartupBattleModel> participations = new ArrayList<>();
 
-    // Método para equals e hashCode baseado apenas no ID
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

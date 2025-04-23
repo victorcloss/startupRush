@@ -260,7 +260,6 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <!-- Page Header -->
     <div class="page-header d-flex justify-content-between align-items-center">
         <div>
             <h1 class="h3 mb-0">Batalha #<span th:text="${battle.id}"></span></h1>
@@ -311,12 +310,12 @@
         </div>
     </div>
 
-    <!-- Versus Badge (Center) -->
+
     <div class="text-center">
         <div class="vs-badge">VS</div>
     </div>
 
-    <!-- Startups Cards -->
+
     <div class="row">
         <div class="col-md-6 mb-4" th:each="participant, participantStat : ${battle.participants}">
             <div class="startup-card position-relative"
@@ -461,7 +460,6 @@
         </div>
     </div>
 
-    <!-- Finalize Battle Button (only if battle is pending) -->
     <div class="finalize-container" th:if="${battle.status.toString() == 'PENDENTE' && battle.participants.size() == 2}">
         <h4 class="mb-2"><i class="fas fa-flag-checkered me-2"></i>Pronto para Finalizar a Batalha?</h4>
         <p>Uma vez finalizada, não será possível aplicar mais eventos. O vencedor receberá +30 pontos.</p>
@@ -473,7 +471,7 @@
         </form>
     </div>
 
-    <!-- Already Finalized Message -->
+
     <div class="alert alert-success" th:if="${battle.status.toString() == 'FINALIZADA'}">
         <div class="d-flex align-items-center">
             <i class="fas fa-check-circle fa-2x me-3"></i>

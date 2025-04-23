@@ -24,14 +24,10 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        // Adiciona as startups ao modelo
         model.addAttribute("startups", startupService.getAllStartups());
-
-        // Adiciona os torneios ao modelo
         List<TournamentModel> tournaments = tournamentService.getAllTournaments();
         model.addAttribute("tournaments", tournaments);
 
-        // Calcula estatísticas para o dashboard
         long activeTournaments = tournaments.stream()
                 .filter(t -> t.getStatus() == TournamentStatus.EM_ANDAMENTO)
                 .count();
@@ -47,15 +43,11 @@ public class HomeController {
 
     @PostMapping("/new-tournament")
     public String createStartupsForm(@RequestParam("numStartups") int numStartups, RedirectAttributes redirectAttributes) {
-        try {
-            // Verifica se há startups suficientes
-            if (startupService.getAllStartups().size() < numStartups) {
+        try {if (startupService.getAllStartups().size() < numStartups) {
                 redirectAttributes.addFlashAttribute("errorMessage",
-                        "Não há startups suficientes para criar um torneio com " + numStartups + " participantes.");
+                        "Não há startups suficientes para criar um torneio com " + numStartups + " participantes");
                 return "redirect:/";
             }
-
-            // Cria um novo torneio
             TournamentModel tournament = tournamentService.createTournament();
             redirectAttributes.addFlashAttribute("numStartups", numStartups);
             redirectAttributes.addFlashAttribute("successMessage", "Torneio criado com sucesso! Selecione as startups participantes.");

@@ -54,8 +54,6 @@ public class BattleService {
         return participation.get();
     }
 
-    // Métodos para aplicar eventos nas batalhas
-
     @Transactional
     public BattleModel applyPitchConvincente(int battleId, int startupId) {
         BattleModel battle = getBattleById(battleId);
@@ -196,10 +194,8 @@ public class BattleService {
     @Transactional
     public BattleModel finalizeBattle(int battleId) {
         try {
-            // Log para depuração
             System.out.println("Iniciando finalização da batalha ID: " + battleId);
 
-            // Recuperando a batalha pelo ID
             BattleModel battle = battleRepository.findById(battleId)
                     .orElseThrow(() -> new RuntimeException("Batalha não encontrada"));
 
@@ -213,8 +209,6 @@ public class BattleService {
                 throw new RuntimeException("Uma batalha deve ter exatamente 2 startups");
             }
 
-            // Recuperando explicitamente as startups participantes do banco de dados
-            // para garantir que estamos trabalhando com entidades gerenciadas
             List<StartupBattleModel> participants = battle.getParticipants();
             StartupModel startup1 = startupRepository.findById(participants.get(0).getStartup().getId()).get();
             StartupModel startup2 = startupRepository.findById(participants.get(1).getStartup().getId()).get();
@@ -222,7 +216,6 @@ public class BattleService {
             System.out.println("Participantes: " + startup1.getName() + " vs " + startup2.getName());
             System.out.println("Pontuações: " + startup1.getPoints() + " vs " + startup2.getPoints());
 
-            // Definir o vencedor primeiro (IMPORTANTE: esta é a mudança principal)
             StartupModel winner;
             if (startup1.getPoints() > startup2.getPoints()) {
                 winner = startup1;
@@ -231,34 +224,26 @@ public class BattleService {
                 winner = startup2;
                 battle.setSharkFight(false);
             } else {
-                // Empate - SharkFight
                 battle.setSharkFight(true);
                 winner = executeSharkFight(battle, startup1, startup2);
             }
 
             System.out.println("Vencedor determinado: " + winner.getName());
-
-            // Definir explicitamente o vencedor na batalha ANTES de salvar
             battle.setWinner(winner);
             battle.setStatus(BattleStatus.FINALIZADA);
 
-            // Salvar a batalha PRIMEIRO
             BattleModel savedBattle = battleRepository.saveAndFlush(battle);
             System.out.println("Batalha salva. ID: " + savedBattle.getId() + ", Status: " + savedBattle.getStatus());
 
-            // Depois de salvar a batalha, atualizar as pontuações finais e os participantes
             for (StartupBattleModel participant : participants) {
                 participant.setPontuacaoFinal(participant.getStartup().getPoints());
                 startupBattleRepository.save(participant);
             }
-
-            // Adicionar pontos ao vencedor DEPOIS de salvar a batalha
             winner.setPoints(winner.getPoints() + 30);
             winner.setWins(winner.getWins() + 1);
             startupRepository.save(winner);
             System.out.println("Pontos do vencedor atualizados: " + winner.getPoints());
 
-            // Verificação final
             BattleModel verifiedBattle = battleRepository.findById(battleId).get();
             System.out.println("Verificação final da batalha - Status: " + verifiedBattle.getStatus());
             System.out.println("Verificação final da batalha - Vencedor: " +
@@ -268,7 +253,7 @@ public class BattleService {
         } catch (Exception e) {
             System.out.println("ERRO ao finalizar batalha: " + e.getMessage());
             e.printStackTrace();
-            throw e; // Relançar a exceção para que o controller possa tratá-la
+            throw e;
         }
     }
 
@@ -278,7 +263,7 @@ public class BattleService {
 
         StartupModel winner = isStartup1Winner ? startup1 : startup2;
 
-        // Encontra a participação do vencedor
+
         StartupBattleModel winnerParticipation = null;
         for (StartupBattleModel participation : battle.getParticipants()) {
             if (participation.getStartup().getId() == winner.getId()) {
@@ -291,7 +276,7 @@ public class BattleService {
             throw new RuntimeException("Erro ao encontrar participação da startup vencedora");
         }
 
-        // Adiciona 2 pontos ao vencedor
+
         winner.setPoints(winner.getPoints() + 2);
         winner.setSharkFights(winner.getSharkFights() + 1);
 

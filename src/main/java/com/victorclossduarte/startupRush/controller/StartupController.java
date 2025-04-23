@@ -21,12 +21,9 @@ public class StartupController {
     public String getAllStartups(Model model) {
         List<StartupModel> startups = service.getAllStartups();
         model.addAttribute("startups", startups);
-
-        // Verifica se há startups suficientes para iniciar um torneio
         boolean canStartTournament = startups.size() >= 4;
         model.addAttribute("canStartTournament", canStartTournament);
 
-        // Opções de quantidade para torneio
         List<Integer> tournamentOptions = new ArrayList<>();
         if (startups.size() >= 4) tournamentOptions.add(4);
         if (startups.size() >= 6) tournamentOptions.add(6);

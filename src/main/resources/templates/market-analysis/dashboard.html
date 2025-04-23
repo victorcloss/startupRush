@@ -93,7 +93,6 @@
   </div>
 
   <div class="row">
-    <!-- Métricas chave -->
     <div class="col-md-4">
       <div class="market-card bg-primary text-white">
         <h5 class="mb-3">Taxa de Crescimento</h5>
@@ -121,7 +120,6 @@
 
   <div class="row mt-4">
     <div class="col-md-8">
-      <!-- Gráfico de crescimento -->
       <div class="card h-100">
         <div class="card-header">
           <h5 class="mb-0">Projeção de Crescimento (6 meses)</h5>
@@ -132,7 +130,6 @@
       </div>
     </div>
     <div class="col-md-4">
-      <!-- Próxima rodada de investimento -->
       <div class="card h-100 funding-card bg-dark text-white">
         <div class="card-body text-center">
           <div class="mb-3">
@@ -162,7 +159,6 @@
       </div>
     </div>
     <div class="col-md-6">
-      <!-- Matriz de investimento -->
       <div class="card">
         <div class="card-header">
           <h5 class="mb-0">Matriz de Investimento</h5>
@@ -225,10 +221,7 @@
   </div>
 
   <script th:inline="javascript">
-    // Dados do gráfico de crescimento
     const growthData = /*[[${marketData.growthData}]]*/ [];
-
-    // Criar gráfico de crescimento
     const ctxGrowth = document.getElementById('growthChart').getContext('2d');
     new Chart(ctxGrowth, {
       type: 'line',
@@ -269,11 +262,10 @@
       }
     });
 
-    // Dados para a matriz de mercado
+
     const marketSize = /*[[${marketData.marketSize}]]*/ 50;
     const marketCompetitiveness = /*[[${marketData.marketCompetitiveness}]]*/ 50;
 
-    // Criar matriz de mercado
     const ctxMarket = document.getElementById('marketMatrix').getContext('2d');
     new Chart(ctxMarket, {
       type: 'scatter',
@@ -326,11 +318,9 @@
       }
     });
 
-    // Dados para a matriz de investimento
     const investmentRisk = /*[[${marketData.investmentRisk}]]*/ 50;
     const investmentReturn = /*[[${marketData.investmentReturn}]]*/ 50;
 
-    // Criar matriz de investimento
     const ctxInvestment = document.getElementById('investmentMatrix').getContext('2d');
     new Chart(ctxInvestment, {
       type: 'scatter',

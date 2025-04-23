@@ -23,7 +23,6 @@ public class RoundController {
         if (!round.isPresent()) {
             return "redirect:/";
         }
-
         model.addAttribute("round", round.get());
         return "round/details";
     }

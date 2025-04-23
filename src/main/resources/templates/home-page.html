@@ -90,7 +90,6 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <!-- Hero Section -->
     <div class="hero-section">
         <div class="row align-items-center">
             <div class="col-lg-7">
@@ -111,7 +110,6 @@
         </div>
     </div>
 
-    <!-- Stats Row -->
     <div class="stats-row">
         <div class="stat-card">
             <div class="stat-icon">
@@ -146,7 +144,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <h4 class="mb-3">Ações Rápidas</h4>
     <div class="quick-actions">
         <a href="/startups/new" class="action-card text-decoration-none">
@@ -184,7 +181,6 @@
 
     </div>
 
-    <!-- Tournament Form - aparece apenas quando há startups suficientes -->
     <div class="tournament-form" th:if="${startups != null && startups.size() >= 4}">
         <h4 class="mb-3">Iniciar um Novo Torneio</h4>
         <form th:action="@{/new-tournament}" method="post" class="row g-3 align-items-end">
@@ -205,7 +201,6 @@
         </form>
     </div>
 
-    <!-- Alert quando não há startups suficientes -->
     <div class="alert alert-info d-flex align-items-center" th:if="${startups == null || startups.size() < 4}">
         <i class="fas fa-info-circle fa-2x me-3"></i>
         <div>
@@ -214,7 +209,6 @@
         </div>
     </div>
 
-    <!-- Recent Tournaments -->
     <div class="card shadow mb-4" th:if="${tournaments != null && !tournaments.isEmpty()}">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Torneios Recentes</h6>
