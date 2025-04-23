@@ -1,5 +1,6 @@
 package com.victorclossduarte.startupRush.controller;
 
+import com.victorclossduarte.startupRush.enums.BattleStatus;
 import com.victorclossduarte.startupRush.model.BattleModel;
 import com.victorclossduarte.startupRush.service.BattleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,12 +90,31 @@ public class BattleController {
 
     @PostMapping("/{id}/finalize")
     public String finalizeBattle(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        System.out.println("Controller: Solicitação para finalizar batalha ID: " + id);
+
         try {
             BattleModel battle = battleService.finalizeBattle(id);
+
+            if (battle.getStatus() != BattleStatus.FINALIZADA) {
+                System.out.println("ERRO: Batalha não foi finalizada corretamente!");
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "A batalha não pôde ser finalizada corretamente. Por favor, tente novamente.");
+                return "redirect:/battles/" + id;
+            }
+
+            if (battle.getWinner() == null) {
+                System.out.println("ERRO: Vencedor não definido após finalização!");
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Erro ao determinar o vencedor. Por favor, tente novamente.");
+                return "redirect:/battles/" + id;
+            }
+
             String message = "Batalha finalizada com sucesso! Vencedor: " + battle.getWinner().getName();
             if (battle.getSharkFight()) {
                 message += " (após SharkFight)";
             }
+
+            System.out.println("Batalha finalizada com sucesso: " + message);
             redirectAttributes.addFlashAttribute("successMessage", message);
 
             if (battle.getRound() != null) {
@@ -104,6 +124,8 @@ public class BattleController {
             }
 
         } catch (Exception e) {
+            System.out.println("Erro ao finalizar batalha: " + e.getMessage());
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Erro ao finalizar a batalha: " + e.getMessage());
             return "redirect:/battles/" + id;
         }

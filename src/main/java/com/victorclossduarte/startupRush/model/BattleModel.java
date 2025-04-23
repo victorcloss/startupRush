@@ -33,7 +33,7 @@ public class BattleModel {
     @OneToMany(mappedBy = "battle", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<StartupBattleModel> participants = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "winner_id")
     private StartupModel winner;
 

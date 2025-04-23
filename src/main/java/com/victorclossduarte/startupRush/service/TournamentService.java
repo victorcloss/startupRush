@@ -218,12 +218,20 @@ public class TournamentService {
             // Define o campeão do torneio como o vencedor da última batalha
             BattleModel finalBattle = currentRound.getBattles().get(0);
             if (finalBattle.getWinner() != null) {
-                tournament.setChampion(finalBattle.getWinner());
+                StartupModel champion = finalBattle.getWinner();
+                tournament.setChampion(champion);
+
+                // Garantir que as mudanças sejam persistidas
+                startupRepository.save(champion);
+                tournament = tournamentRepository.save(tournament);
+
+                // Log para debug
+                System.out.println("Torneio finalizado. Campeão: " + champion.getName() + " (ID: " + champion.getId() + ")");
             } else {
                 throw new RuntimeException("A batalha final não tem um vencedor definido");
             }
 
-            return tournamentRepository.save(tournament);
+            return tournament;
         }
 
         // Avança para a próxima rodada
